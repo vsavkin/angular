@@ -1,5 +1,5 @@
 import {CONSTRUCTOR, FROM} from 'traceur/src/syntax/PredefinedName';
-import {EQUAL_EQUAL_EQUAL, OPEN_PAREN, CLOSE_PAREN, IMPORT, SEMI_COLON, STAR, OPEN_CURLY, CLOSE_CURLY, COMMA, AT, EQUAL} from 'traceur/src/syntax/TokenType';
+import {EQUAL_EQUAL_EQUAL, OPEN_PAREN, CLOSE_PAREN, IMPORT, SEMI_COLON, STAR, OPEN_CURLY, CLOSE_CURLY, COMMA, AT, EQUAL, COLON} from 'traceur/src/syntax/TokenType';
 
 import {ParseTreeWriter as JavaScriptParseTreeWriter} from 'traceur/src/outputgeneration/ParseTreeWriter';
 
@@ -86,7 +86,18 @@ export class DartTreeWriter extends JavaScriptParseTreeWriter {
     this.visitAny(tree.parameterList);
     this.write_(CLOSE_PAREN);
     this.writeSpace_();
+
+    if (tree.initExpressions && tree.initExpressions.length > 0) {
+      this.write_(COLON);
+      this.writeSpace_();
+      this.writeList_(tree.initExpressions, COMMA, false);
+    }
+
     this.visitAny(tree.body);
+  }
+
+  visitConstructorInitExpression(tree) {
+    this.visitAny(tree.expression);
   }
 
   normalizeType_(typeName) {

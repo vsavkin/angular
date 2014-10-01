@@ -1,10 +1,14 @@
 import {ParseTreeTransformer} from 'traceur/src/codegeneration/ParseTreeTransformer';
+import {ParseTree} from 'traceur/src/syntax/trees/ParseTree';
+
 
 import {
   PROPERTY_METHOD_ASSIGNMENT,
   MEMBER_EXPRESSION,
   THIS_EXPRESSION,
-  BINARY_EXPRESSION
+  BINARY_EXPRESSION,
+  CALL_EXPRESSION,
+  SUPER_EXPRESSION
 } from 'traceur/src/syntax/trees/ParseTreeType';
 
 import {CONSTRUCTOR} from 'traceur/src/syntax/PredefinedName';
@@ -13,12 +17,30 @@ import {propName} from 'traceur/src/staticsemantics/PropName';
 
 import {ClassFieldParseTree} from '../ast/class_field';
 
+class ConstructorInitExpressionParseTree extends ParseTree {
+  constructor(expression) {
+    this.expression = expression;
+    this.location = expression.location;
+  }
+
+  get type() {
+    return "CONSTRUCTOR_INIT_EXPRESSION";
+  }
+
+  visit(visitor) {
+    visitor.visitConstructorInitExpression(this);
+  }
+
+  transform(transformer) {
+    return this;
+  }
+}
+
 /**
  * Transforms class declaration:
  * - rename constructor (name of the class - default Dart constructor)
  *
  */
-
 export class ClassTransformer extends ParseTreeTransformer {
   /**
    * @param {ClassDeclaration} tree
@@ -57,6 +79,20 @@ export class ClassTransformer extends ParseTreeTransformer {
             fields.push(new ClassFieldParseTree(tree.location, statement.expression.left.memberName, typeAnnotation));
           }
         });
+
+        //move all init expressions into a separate list
+        var statements = [];
+        var initExprs = [];
+        elementTree.body.statements.forEach(function(statement) {
+          if (statement.expression.type === CALL_EXPRESSION &&
+            statement.expression.operand.type === SUPER_EXPRESSION) {
+            initExprs.push(new ConstructorInitExpressionParseTree(statement.expression));
+          } else {
+            statements.push(statement);
+          }
+        });
+        elementTree.body.statements = statements;
+        elementTree.initExpressions = initExprs;
       }
     });
 
