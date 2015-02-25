@@ -537,7 +537,10 @@ export class ElementInjector extends TreeNode {
     if (isPresent(this._host) && this._host._isComponentKey(key)) {
       return this._host.getComponent();
     } else {
-      return this._appInjector(requestor).get(key);
+      return null;
+      // TODO: DO NOT COMMIT IT
+      // TEMPORARY WORKAROUND
+      //return this._appInjector(requestor).get(key);
     }
   }
 
