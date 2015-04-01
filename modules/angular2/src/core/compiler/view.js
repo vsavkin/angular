@@ -145,9 +145,9 @@ export class View {
       // shadowDomAppInjector
       if (isPresent(componentDirective)) {
         var services = componentDirective.annotation.services;
-        if (isPresent(services))
+        if (isPresent(services)) {
           shadowDomAppInjector = appInjector.createChild(services);
-        else {
+        } else {
           shadowDomAppInjector = appInjector;
         }
       } else {
@@ -306,7 +306,7 @@ export class ProtoView {
   parentProtoView:ProtoView;
   _variableBindings:List;
 
-  _directiveMementosMap:Map; 
+  _directiveMementosMap:Map;
   _directiveMementos:List;
 
   constructor(
@@ -474,10 +474,12 @@ export class ProtoView {
       var lightDom = null;
       var bindingPropagationConfig = null;
       if (isPresent(binder.nestedProtoView) && isPresent(binder.componentDirective)) {
+        console.log('  instantiate_: componentChildViews');
         var strategy = this.shadowDomStrategy;
         var childView = binder.nestedProtoView.instantiate(elementInjector, eventManager);
         changeDetector.addChild(childView.changeDetector);
 
+        debugger;
         lightDom = strategy.constructLightDom(view, childView, element);
         strategy.attachTemplate(element, childView);
 
@@ -486,7 +488,7 @@ export class ProtoView {
         ListWrapper.push(componentChildViews, childView);
       }
       lightDoms[binderIdx] = lightDom;
-      
+
       var destLightDom = null;
       if (isPresent(binder.parent) && binder.distanceToParent === 1) {
         destLightDom = lightDoms[binder.parent.index];
@@ -574,7 +576,7 @@ export class ProtoView {
 
   bindElement(parent:ElementBinder, distanceToParent:int, protoElementInjector:ProtoElementInjector,
       componentDirective:DirectiveMetadata = null, viewportDirective:DirectiveMetadata = null):ElementBinder {
-    var elBinder = new ElementBinder(this.elementBinders.length, parent, distanceToParent, 
+    var elBinder = new ElementBinder(this.elementBinders.length, parent, distanceToParent,
         protoElementInjector, componentDirective, viewportDirective);
     ListWrapper.push(this.elementBinders, elBinder);
     return elBinder;
@@ -653,18 +655,18 @@ export class ProtoView {
     var directiveMemento = this._getDirectiveMemento(elementIndex, directiveIndex);
     ListWrapper.push(this.bindingRecords, new BindingRecord(expression, bindingMemento, directiveMemento));
   }
-  
+
   _getDirectiveMemento(elementInjectorIndex:number, directiveIndex:number) {
     var id = elementInjectorIndex * 100 + directiveIndex;
     var protoElementInjector = this.elementBinders[elementInjectorIndex].protoElementInjector;
-  
+
     if (!MapWrapper.contains(this._directiveMementosMap, id)) {
       var binding = protoElementInjector.getDirectiveBindingAtIndex(directiveIndex);
       MapWrapper.set(this._directiveMementosMap, id,
         new DirectiveMemento(elementInjectorIndex, directiveIndex,
           binding.callOnAllChangesDone, binding.callOnChange));
     }
-  
+
     return MapWrapper.get(this._directiveMementosMap, id);
   }
 

@@ -4,7 +4,7 @@ import {PromiseWrapper} from 'angular2/src/facade/async';
 import {List, ListWrapper, MapWrapper} from 'angular2/src/facade/collection';
 import {Injector, Key, Dependency, bind, Binding, NoProviderError, ProviderError, CyclicDependencyError} from 'angular2/di';
 import {Parent, Ancestor} from 'angular2/src/core/annotations/visibility';
-import {EventEmitter, PropertySetter, Attribute, Injector} from 'angular2/src/core/annotations/di';
+import {EventEmitter, PropertySetter, Attribute} from 'angular2/src/core/annotations/di';
 import * as viewModule from 'angular2/src/core/compiler/view';
 import {ViewContainer} from 'angular2/src/core/compiler/view_container';
 import {NgElement} from 'angular2/src/core/dom/element';
@@ -98,7 +98,7 @@ export class DirectiveRef {
   }
 
   get instance() {
-    return this.elementInjector.get(key);
+    return this.elementInjector.get(this.key);
   }
 }
 

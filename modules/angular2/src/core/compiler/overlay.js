@@ -6,10 +6,11 @@ import {Component} from 'angular2/src/core/annotations/annotations';
 import {PrivateComponentLocation} from './private_component_location';
 import {Type, stringify, BaseException} from 'angular2/src/facade/lang';
 import {View, ProtoView} from 'angular2/src/core/compiler/view';
-import {ProtoElementInjector} from 'angular2/src/core/compiler/element_injector';
-import {Injector} from 'angular2/di';
+import {ProtoElementInjector, DirectiveRef} from 'angular2/src/core/compiler/element_injector';
+import {Injector, Key} from 'angular2/di';
 import {appViewToken} from 'angular2/src/core/application';
 import {ChangeDetection} from 'angular2/change_detection';
+import {DOM} from 'angular2/src/dom/dom_adapter';
 
 export class Overlay {
   compiler:Compiler;
@@ -36,19 +37,37 @@ export class Overlay {
     var metadata = this.directiveMetadataReader.read(type);
     return this.compiler.compile(type).then((componentProtoView) => {
 
-      var containingProtoView = new ProtoView(null,
-        changeDetection.createProtoChangeDetector("dummy"),
-        this.shadowDomStrategy);
+      var templateElement = DOM.createElement('div');
+      templateElement.id = 'dummy-view-element';
+      DOM.addClass(templateElement, 'ng-binding');
+
+      var containingProtoView = new ProtoView(templateElement,
+          this.changeDetection.createProtoChangeDetector("dummy"),
+          this.shadowDomStrategy);
 
       var binder = containingProtoView.bindElement(null, 0,
-        new ProtoElementInjector(null, 0, [type], true));
+          new ProtoElementInjector(null, 0, [type], true));
+      binder.componentDirective = metadata;
 
       binder.componentDirective = metadata;
+
       binder.nestedProtoView = componentProtoView;
 
-      //var containingView = containingProtoView.instantiate(null, this.eventManager);
-      //containingView.hydrate(injector, null, null, new Object(), null);
+      containingProtoView.instantiateInPlace = true;
 
+      console.log("INSTANTIATING CONTAINER VIEW");
+      var containingView = containingProtoView.instantiate(null, this.eventManager);
+
+      console.log("HYDRATING");
+      containingView.hydrate(injector, null, null, new Object(), null);
+
+      ref.elementInjector.getNgElement().domElement.parentNode.appendChild(
+          containingView.elementInjectors[0].getNgElement().domElement);
+
+      var resultRef = new DirectiveRef(containingView.elementInjectors[0], Key.get(type));
+
+
+      return resultRef;
 
       //location.createComponent(
       //  type, annotation,

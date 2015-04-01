@@ -615,20 +615,19 @@ export function main() {
 
       iit('should support overlay components', inject([AsyncTestCompleter], (async) => {
         tplResolver.setTemplate(MyComp, new Template({
-          inline: '<tooltip #cmp></tooltip>',
-          directives: [TooltipCmp, HelloCmp]
+          inline: '<div><tooltip id="t" #cmp></tooltip></div>',
+          directives: [TooltipCmp, HelloCmp2]
         }));
         compiler.compile(MyComp).then((pv) => {
           createView(pv);
-
           var cmp = view.locals.get("cmp");
           expect(cmp).toBeAnInstanceOf(TooltipCmp);
 
           cmp.done.then((_) => {
             cd.detectChanges();
             expect(cmp.helloRef).toBeAnInstanceOf(DirectiveRef);
-            expect(cmp.helloRef.instance).toBeAnInstanceOf(HelloCmp);
-            //expect(view.nodes).toHaveText('tooltip');
+            expect(cmp.helloRef.instance).toBeAnInstanceOf(HelloCmp2);
+            expect(view.nodes).toHaveText('greeting');
             async.done();
           });
         });
@@ -636,7 +635,7 @@ export function main() {
 
       it('should support static attributes', inject([AsyncTestCompleter], (async) => {
         tplResolver.setTemplate(MyComp, new Template({
-          inline: '<input static type="text" title></input>',
+          inline: '<input> static type="text" title>',
           directives: [NeedsAttribute]
         }));
         compiler.compile(MyComp).then((pv) => {
@@ -721,8 +720,8 @@ class TooltipCmp {
   helloRef:DirectiveRef;
   done:Promise;
 
-  constructor(overlay:Overlay, ref:DirectiveRef) {
-    this.done = overlay.open(HelloCmp, null, ref).then((helloRef) => {
+  constructor(overlay:Overlay, ref:DirectiveRef, injector: Injector) {
+    this.done = overlay.open(HelloCmp2, injector, ref).then((helloRef) => {
       this.helloRef = helloRef;
     });
   }
@@ -747,6 +746,19 @@ class DynamicComp {
   inline: "{{greeting}}"
 })
 class HelloCmp {
+  greeting:string;
+  constructor() {
+    this.greeting = "hello";
+  }
+}
+
+@Component({
+  selector: 'hello-cmp2'
+})
+@Template({
+  inline: "Greeting: {{greeting}}"
+})
+class HelloCmp2 {
   greeting:string;
   constructor() {
     this.greeting = "hello";
