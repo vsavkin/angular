@@ -1,9 +1,10 @@
 import {isPresent, isBlank, Type, int, BaseException} from 'angular2/src/facade/lang';
 import {Math} from 'angular2/src/facade/math';
+import {PromiseWrapper} from 'angular2/src/facade/async';
 import {List, ListWrapper, MapWrapper} from 'angular2/src/facade/collection';
 import {Injector, Key, Dependency, bind, Binding, NoProviderError, ProviderError, CyclicDependencyError} from 'angular2/di';
 import {Parent, Ancestor} from 'angular2/src/core/annotations/visibility';
-import {EventEmitter, PropertySetter, Attribute} from 'angular2/src/core/annotations/di';
+import {EventEmitter, PropertySetter, Attribute, Injector} from 'angular2/src/core/annotations/di';
 import * as viewModule from 'angular2/src/core/compiler/view';
 import {ViewContainer} from 'angular2/src/core/compiler/view_container';
 import {NgElement} from 'angular2/src/core/dom/element';
@@ -11,6 +12,7 @@ import {Directive, onChange, onDestroy, onAllChangesDone} from 'angular2/src/cor
 import {BindingPropagationConfig} from 'angular2/change_detection';
 import * as pclModule from 'angular2/src/core/compiler/private_component_location';
 import {setterFactory} from './property_setter_factory';
+import {appViewToken} from 'angular2/src/core/application';
 
 var _MAX_DIRECTIVE_CONSTRUCTION_COUNTER = 10;
 
@@ -86,19 +88,37 @@ class TreeNode {
   }
 }
 
+export class DirectiveRef {
+  elementInjector:ElementInjector;
+  key:Key;
+
+  constructor(elementInjector:ElementInjector, key:Key) {
+    this.elementInjector = elementInjector;
+    this.key = key;
+  }
+
+  get instance() {
+    return this.elementInjector.get(key);
+  }
+}
+
+
 export class DirectiveDependency extends Dependency {
   depth:int;
+  isDirectiveRef:boolean;
   eventEmitterName:string;
   propSetterName:string;
   attributeName:string;
 
   constructor(key:Key, asPromise:boolean, lazy:boolean, optional:boolean,
-              properties:List, depth:int, eventEmitterName: string, propSetterName: string, attributeName:string) {
+              properties:List, depth:int, eventEmitterName: string, propSetterName: string,
+              attributeName:string, isDirectiveRef:boolean) {
     super(key, asPromise, lazy, optional, properties);
     this.depth = depth;
     this.eventEmitterName = eventEmitterName;
     this.propSetterName = propSetterName;
     this.attributeName = attributeName;
+    this.isDirectiveRef = isDirectiveRef;
   }
 
   static createFrom(d:Dependency):Dependency {
@@ -123,8 +143,10 @@ export class DirectiveDependency extends Dependency {
       }
     }
 
+    var isDirectiveRef = d.key === Key.get(DirectiveRef);
+
     return new DirectiveDependency(d.key, d.asPromise, d.lazy, d.optional, d.properties, depth,
-        eventName, propName, attributeName);
+        eventName, propName, attributeName, isDirectiveRef);
   }
 }
 
@@ -540,6 +562,8 @@ export class ElementInjector extends TreeNode {
     if (isPresent(dep.eventEmitterName)) return this._buildEventEmitter(dep);
     if (isPresent(dep.propSetterName)) return this._buildPropSetter(dep);
     if (isPresent(dep.attributeName)) return this._buildAttribute(dep);
+    if (dep.isDirectiveRef) return new DirectiveRef(this, dep.key);
+
     return this._getByKey(dep.key, dep.depth, dep.optional, requestor);
   }
 

@@ -14,10 +14,10 @@ import {
 
 import {DOM} from 'angular2/src/dom/dom_adapter';
 import {Type, isPresent, BaseException, assertionsEnabled, isJsObject} from 'angular2/src/facade/lang';
-import {PromiseWrapper} from 'angular2/src/facade/async';
+import {Promise, PromiseWrapper} from 'angular2/src/facade/async';
 
 import {Injector, bind} from 'angular2/di';
-import {Lexer, Parser, dynamicChangeDetection,
+import {Lexer, Parser, dynamicChangeDetection, ChangeDetection,
   DynamicChangeDetection, Pipe, PipeRegistry, BindingPropagationConfig} from 'angular2/change_detection';
 
 import {Compiler, CompilerCache} from 'angular2/src/core/compiler/compiler';
@@ -31,6 +31,8 @@ import {ComponentUrlMapper} from 'angular2/src/core/compiler/component_url_mappe
 import {UrlResolver} from 'angular2/src/core/compiler/url_resolver';
 import {StyleUrlResolver} from 'angular2/src/core/compiler/style_url_resolver';
 import {CssProcessor} from 'angular2/src/core/compiler/css_processor';
+import {DirectiveRef} from 'angular2/src/core/compiler/element_injector';
+import {Overlay} from 'angular2/src/core/compiler/overlay';
 import {EventManager} from 'angular2/src/core/events/event_manager';
 
 import {Decorator, Component, Viewport, DynamicComponent} from 'angular2/src/core/annotations/annotations';
@@ -41,6 +43,8 @@ import {EventEmitter, Attribute} from 'angular2/src/core/annotations/di';
 import {If} from 'angular2/src/directives/if';
 
 import {ViewContainer} from 'angular2/src/core/compiler/view_container';
+import {appViewToken} from 'angular2/src/core/application';
+
 
 export function main() {
   describe('integration tests', function() {
@@ -83,7 +87,10 @@ export function main() {
           bind(DirectiveMetadataReader).toValue(directiveMetadataReader),
           bind(ShadowDomStrategy).toValue(shadowDomStrategy),
           bind(EventManager).toValue(null),
-          PrivateComponentLoader
+          bind(Overlay).toClass(Overlay),
+          PrivateComponentLoader,
+          bind(appViewToken).toValue(view),
+          bind(ChangeDetection).toValue(dynamicChangeDetection)
         ]), null, null, ctx, null);
 
         cd = view.changeDetector;
@@ -606,6 +613,27 @@ export function main() {
         });
       }));
 
+      iit('should support overlay components', inject([AsyncTestCompleter], (async) => {
+        tplResolver.setTemplate(MyComp, new Template({
+          inline: '<tooltip #cmp></tooltip>',
+          directives: [TooltipCmp, HelloCmp]
+        }));
+        compiler.compile(MyComp).then((pv) => {
+          createView(pv);
+
+          var cmp = view.locals.get("cmp");
+          expect(cmp).toBeAnInstanceOf(TooltipCmp);
+
+          cmp.done.then((_) => {
+            cd.detectChanges();
+            expect(cmp.helloRef).toBeAnInstanceOf(DirectiveRef);
+            expect(cmp.helloRef.instance).toBeAnInstanceOf(HelloCmp);
+            //expect(view.nodes).toHaveText('tooltip');
+            async.done();
+          });
+        });
+      }));
+
       it('should support static attributes', inject([AsyncTestCompleter], (async) => {
         tplResolver.setTemplate(MyComp, new Template({
           inline: '<input static type="text" title></input>',
@@ -683,6 +711,23 @@ export function main() {
 
   });
 }
+
+
+@Component({
+  selector: 'tooltip'
+})
+@Template({inline: 'tooltip'})  
+class TooltipCmp {
+  helloRef:DirectiveRef;
+  done:Promise;
+  
+  constructor(overlay:Overlay, ref:DirectiveRef) {
+    this.done = overlay.open(HelloCmp, null, ref).then((helloRef) => {
+      this.helloRef = helloRef;
+    });
+  }
+}
+
 
 
 @DynamicComponent({
