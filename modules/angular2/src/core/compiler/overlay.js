@@ -34,34 +34,39 @@ export class Overlay {
   }
 
   open(type, injector, ref) {
+
+    // TODO:
+    // - How much of this can be shared with bootstrap?
+    // - Can we take advantage of ViewContainers to make this simpler?
+    // - How does this change when the render layer is in?
+    // - How does the core use DirecitveRef without exposing too much to the user?
+
+
     var metadata = this.directiveMetadataReader.read(type);
     return this.compiler.compile(type).then((componentProtoView) => {
 
-      var templateElement = DOM.createElement('div');
-      templateElement.id = 'dummy-view-element';
-      DOM.addClass(templateElement, 'ng-binding');
+      // Create a dummy View to hold the Component we're going to add.
+      var dummyViewElement = DOM.createElement('div');
+      DOM.addClass(dummyViewElement, 'dummy-overlay-view-element');
 
-      var containingProtoView = new ProtoView(templateElement,
-          this.changeDetection.createProtoChangeDetector("dummy"),
+      var containingProtoView = new ProtoView(
+          dummyViewElement,
+          this.changeDetection.createProtoChangeDetector('overlay-change-detector'),
           this.shadowDomStrategy);
-
-      var binder = containingProtoView.bindElement(null, 0,
-          new ProtoElementInjector(null, 0, [type], true));
-      binder.componentDirective = metadata;
-
-      binder.componentDirective = metadata;
-
-      binder.nestedProtoView = componentProtoView;
-
       containingProtoView.instantiateInPlace = true;
+
+      var binder = containingProtoView.bindElement(
+          null, 0, new ProtoElementInjector(null, 0, [type], true));
+      binder.componentDirective = metadata;
+
+      // Add the protoview for the component we want to create to the dummy view.
+      binder.nestedProtoView = componentProtoView;
 
       console.log("INSTANTIATING CONTAINER VIEW");
       var containingView = containingProtoView.instantiate(null, this.eventManager);
 
       console.log("HYDRATING");
       containingView.hydrate(injector, null, null, new Object(), null);
-
-      var componentView = containingView.componentChildViews[0];
 
       ref.elementInjector.getNgElement().domElement.parentNode.appendChild(
           containingView.elementInjectors[0].getNgElement().domElement);
@@ -70,12 +75,6 @@ export class Overlay {
 
 
       return new DirectiveRef(containingView.elementInjectors[0], Key.get(type));
-
-      //location.createComponent(
-      //  type, annotation,
-      //  componentProtoView,
-      //  this.eventManager,
-      //  this.shadowDomStrategy);
     });
   }
 }
