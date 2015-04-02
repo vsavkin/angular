@@ -48,6 +48,7 @@ export class Overlay {
       // Create a dummy View to hold the Component we're going to add.
       var dummyViewElement = DOM.createElement('div');
       DOM.addClass(dummyViewElement, 'dummy-overlay-view-element');
+      DOM.addClass(dummyViewElement, 'ng-binding');
 
       var containingProtoView = new ProtoView(
           dummyViewElement,

@@ -630,9 +630,9 @@ export function main() {
 
             expect(cmp.helloRef.elementInjector.getNgElement().domElement).toHaveText('Greeting: hello');
 
-            //cmp.helloRef.instance.greeting = 'ahoy';
-            //cd.detectChanges();
-            //expect(cmp.helloRef.elementInjector.getNgElement().domElement).toHaveText('Greeting: ahoy');
+            cmp.helloRef.instance.greeting = 'ahoy';
+            cd.detectChanges();
+            expect(cmp.helloRef.elementInjector.getNgElement().domElement).toHaveText('Greeting: ahoy');
 
             async.done();
           });
