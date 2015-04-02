@@ -627,7 +627,11 @@ export function main() {
             cd.detectChanges();
             expect(cmp.helloRef).toBeAnInstanceOf(DirectiveRef);
             expect(cmp.helloRef.instance).toBeAnInstanceOf(HelloCmp2);
-            expect(view.nodes).toHaveText('greeting');
+
+            expect(cmp.helloRef.elementInjector.getNgElement().domElement).toHaveText('Greeting: hello');
+
+            debugger;
+
             async.done();
           });
         });

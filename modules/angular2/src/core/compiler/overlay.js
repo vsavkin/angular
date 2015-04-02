@@ -61,13 +61,15 @@ export class Overlay {
       console.log("HYDRATING");
       containingView.hydrate(injector, null, null, new Object(), null);
 
+      var componentView = containingView.componentChildViews[0];
+
       ref.elementInjector.getNgElement().domElement.parentNode.appendChild(
           containingView.elementInjectors[0].getNgElement().domElement);
 
-      var resultRef = new DirectiveRef(containingView.elementInjectors[0], Key.get(type));
+      containingView.changeDetector.detectChanges();
 
 
-      return resultRef;
+      return new DirectiveRef(containingView.elementInjectors[0], Key.get(type));
 
       //location.createComponent(
       //  type, annotation,

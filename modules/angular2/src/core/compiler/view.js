@@ -418,7 +418,6 @@ export class ProtoView {
     var view = new View(this, viewNodes, this.protoLocals);
     var changeDetector = this.protoChangeDetector.instantiate(view, this.bindingRecords,
       this._getVariableBindings(), this._getDirectiveMementos());
-
     var binders = this.elementBinders;
     var elementInjectors = ListWrapper.createFixedSize(binders.length);
     var eventHandlers = ListWrapper.createFixedSize(binders.length);
@@ -478,8 +477,6 @@ export class ProtoView {
         var strategy = this.shadowDomStrategy;
         var childView = binder.nestedProtoView.instantiate(elementInjector, eventManager);
         changeDetector.addChild(childView.changeDetector);
-
-        debugger;
         lightDom = strategy.constructLightDom(view, childView, element);
         strategy.attachTemplate(element, childView);
 
