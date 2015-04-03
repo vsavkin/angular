@@ -12,6 +12,33 @@ import {appViewToken} from 'angular2/src/core/application';
 import {ChangeDetection} from 'angular2/change_detection';
 import {DOM} from 'angular2/src/dom/dom_adapter';
 
+
+class DynamicComponentLoader {
+  compiler:Compiler;
+  eventManager:EventManager;
+
+  constructor(compiler:Compiler, eventManager:EventManager) {
+    this.compiler = compiler;
+    this.eventManager = eventManager;
+  }
+
+  load(type:Type, injector:Injector, hostElementInjector, selfElementInjector) {
+    return this.compiler.compile(type).then((componentProtoView) => {
+      if (isBlank(selfElementInjector)) {
+        var protoElementInjector = new ProtoElementInjector(null, 0, [type], true);
+        var elementInjector = protoElementInjector.instantiate(null, hostElementInjector);
+        elementInjector.instantiateDirectives(null, injector, null);  // we need to construct PreBuiltObjects
+
+        var componentView = componentProtoView.instantiate(elementInjector, this.eventManager);
+        componentView.hydrate(injector, hostElementInjector, elementInjector.getComponent(), null);
+
+        return new DirectiveRef(elementInjector, Key.get(type));
+      }
+    });
+  }
+}
+
+
 export class Overlay {
   compiler:Compiler;
   shadowDomStrategy:ShadowDomStrategy;
@@ -71,6 +98,9 @@ export class Overlay {
 
       ref.elementInjector.getNgElement().domElement.parentNode.appendChild(
           containingView.elementInjectors[0].getNgElement().domElement);
+
+      // we should also add a view here
+      this.appView.changeDetector.addChild(containingView.changeDetector);
 
       containingView.changeDetector.detectChanges();
 
