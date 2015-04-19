@@ -2,20 +2,16 @@ import {DynamicProtoChangeDetector, JitProtoChangeDetector} from './proto_change
 import {PipeRegistry} from './pipes/pipe_registry';
 import {IterableChangesFactory} from './pipes/iterable_changes';
 import {KeyValueChangesFactory} from './pipes/keyvalue_changes';
+import {AsyncPipeFactory} from './pipes/async_pipe';
 import {NullPipeFactory} from './pipes/null_pipe';
 import {DEFAULT} from './constants';
 import {ChangeDetection, ProtoChangeDetector} from './interfaces';
 import {Injectable} from 'angular2/di';
 
 export var defaultPipes = {
-  "iterableDiff" : [
-    new IterableChangesFactory(),
-    new NullPipeFactory()
-  ],
-  "keyValDiff" : [
-    new KeyValueChangesFactory(),
-    new NullPipeFactory()
-  ]
+  "iterableDiff" : [new IterableChangesFactory(), new NullPipeFactory()],
+  "keyValDiff" : [new KeyValueChangesFactory(), new NullPipeFactory()],
+  "async" : [new AsyncPipeFactory(), new NullPipeFactory()]
 };
 
 /**
