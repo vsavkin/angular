@@ -1,4 +1,4 @@
-import {Injectable} from 'angular2/di';
+import {Injectable, Inject} from 'angular2/di';
 import {int, isBlank, isPresent,  BaseException, StringWrapper, RegExpWrapper} from 'angular2/src/facade/lang';
 import {ListWrapper, List} from 'angular2/src/facade/collection';
 import {Lexer, EOF, Token, $PERIOD, $COLON, $SEMICOLON, $LBRACKET, $RBRACKET,
@@ -33,13 +33,17 @@ var _implicitReceiver = new ImplicitReceiver();
 var INTERPOLATION_REGEXP = RegExpWrapper.create('\\{\\{(.*?)\\}\\}');
 var QUOTE_REGEXP = RegExpWrapper.create("'");
 
+export class AstTransformers {}
+
 @Injectable()
 export class Parser {
   _lexer:Lexer;
   _reflector:Reflector;
-  constructor(lexer:Lexer, providedReflector:Reflector = null){
+  _astTransformers;
+  constructor(lexer:Lexer, @Inject(AstTransformers) astTransformers, providedReflector:Reflector = null){
     this._lexer = lexer;
     this._reflector = isPresent(providedReflector) ? providedReflector : reflector;
+    this._astTransformers = astTransformers;
   }
 
   parseAction(input:string, location:any):ASTWithSource {
@@ -49,9 +53,16 @@ export class Parser {
   }
 
   parseBinding(input:string, location:any):ASTWithSource {
+    var transformer = null;
+    if (input.search(/^\w+\:/) !== -1) {
+      transformer = this._astTransformers[input.substr(0, input.indexOf(":"))];
+      input = input.substr(input.indexOf(":") + 1);
+    }
+
     var tokens = this._lexer.tokenize(input);
     var ast = new _ParseAST(input, location, tokens, this._reflector, false).parseChain();
-    return new ASTWithSource(ast, input, location);
+    var res = new ASTWithSource(ast, input, location);
+    return isPresent(transformer) ? transformer(res) : res;
   }
 
   addPipes(bindingAst:ASTWithSource, pipes:List<String>):ASTWithSource {
@@ -82,8 +93,20 @@ export class Parser {
         // fixed string
         ListWrapper.push(strings, part);
       } else {
+        var transformer = null;
+        if (part.search(/^\w+\:/) !== -1) {
+          transformer = this._astTransformers[part.substr(0, part.indexOf(":"))];
+          part = part.substr(part.indexOf(":") + 1);
+        } else {
+          transformer = null;
+        }
+
         var tokens = this._lexer.tokenize(part);
         var ast = new _ParseAST(input, location, tokens, this._reflector, false).parseChain();
+        if (transformer) {
+          ast = transformer(ast);
+        }
+
         ListWrapper.push(expressions, ast);
       }
     }
