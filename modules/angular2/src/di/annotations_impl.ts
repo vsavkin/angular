@@ -1,3 +1,5 @@
+export var __esModule = true;
+
 import {CONST} from "angular2/src/facade/lang";
 
 /**
@@ -11,12 +13,11 @@ import {CONST} from "angular2/src/facade/lang";
  *
  * @exportedAs angular2/di_annotations
  */
+
+@CONST()
 export class Inject {
   token;
-  @CONST()
-  constructor(token) {
-    this.token = token;
-  }
+  constructor(token) { this.token = token; }
 }
 
 /**
@@ -32,12 +33,10 @@ export class Inject {
  *
  * @exportedAs angular2/di_annotations
  */
+@CONST()
 export class InjectPromise {
   token;
-  @CONST()
-  constructor(token) {
-    this.token = token;
-  }
+  constructor(token) { this.token = token; }
 }
 
 /**
@@ -53,17 +52,15 @@ export class InjectPromise {
  *
  * @exportedAs angular2/di_annotations
  */
+@CONST()
 export class InjectLazy {
   token;
-  @CONST()
-  constructor(token) {
-    this.token = token;
-  }
+  constructor(token) { this.token = token; }
 }
 
 /**
- * A parameter annotation that marks a dependency as optional. {@link Injector} provides `null` if the dependency is not
- * found.
+ * A parameter annotation that marks a dependency as optional. {@link Injector} provides `null` if
+ * the dependency is not found.
  *
  * ```
  * class AComponent {
@@ -75,16 +72,15 @@ export class InjectLazy {
  *
  * @exportedAs angular2/di_annotations
  */
+@CONST()
 export class Optional {
-  @CONST()
-  constructor() {
-  }
 }
 
 /**
  * `DependencyAnnotation` is used by the framework to extend DI.
  *
- * Only annotations implementing `DependencyAnnotation` are added to the list of dependency properties.
+ * Only annotations implementing `DependencyAnnotation` are added to the list of dependency
+ * properties.
  *
  * For example:
  *
@@ -108,19 +104,14 @@ export class Optional {
  *
  * @exportedAs angular2/di_annotations
  */
+@CONST()
 export class DependencyAnnotation {
-  @CONST()
-  constructor() {
-  }
-
-  get token() {
-    return null;
-  }
+  get token() { return null; }
 }
 
 /**
- * A marker annotation that marks a class as available to `Injector` for creation. Used by tooling for
- * generating constructor stubs.
+ * A marker annotation that marks a class as available to `Injector` for creation. Used by tooling
+ * for generating constructor stubs.
  *
  * ```
  * class NeedsService {
@@ -132,8 +123,6 @@ export class DependencyAnnotation {
  * ```
  * @exportedAs angular2/di_annotations
  */
+@CONST()
 export class Injectable {
-  @CONST()
-  constructor() {
-  }
 }

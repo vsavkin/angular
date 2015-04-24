@@ -211,7 +211,7 @@ export function main() {
         .toThrowError('Invalid binding - only instances of Binding and Type are allowed, got: blah');
       expect(() => Injector.resolveAndCreate([bind("blah")]))
         .toThrowError('Invalid binding - only instances of Binding and Type are allowed, ' +
-        'got: BindingBuilder with blah token');
+        'got: blah');
     });
 
     it('should provide itself', function () {

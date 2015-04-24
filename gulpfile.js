@@ -339,6 +339,22 @@ gulp.task('test.unit.js', ['build/clean.js'], function (neverDone) {
   });
 });
 
+gulp.task('test.unit.js2', ['build/clean.js'], function (neverDone) {
+
+  function buildAndTest() {
+    runSequence(
+      'broccoli.js.dev'
+    );
+  }
+
+  buildAndTest();
+
+  gulp.watch('modules/**', function() {
+    console.log('args', arguments);
+    buildAndTest();
+  });
+});
+
 gulp.task('test.unit.dev/karma-run', function(done) {
   karma.runner.run({configFile: __dirname + '/karma-js.conf.js'}, done);
 });

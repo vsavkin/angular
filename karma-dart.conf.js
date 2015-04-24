@@ -61,6 +61,8 @@ module.exports = function(config) {
 
     preprocessors: {
       'modules/**/*.js': ['ts2dart'],
+      'modules/angular2/src/di/*.ts': ['ts2dart'],
+      'modules/angular2/dart.ts': ['ts2dart'],
       'modules/angular2/src/reflection/reflector.ts': ['ts2dart'],
       'tools/**/*.js': ['ts2dart']
     },
