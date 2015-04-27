@@ -186,10 +186,15 @@ gulp.task('build/checkCircularDependencies', function (done) {
 
 // ------------------
 // web servers
-gulp.task('serve.js.dev', jsserve(gulp, gulpPlugins, {
-  path: CONFIG.dest.js.dev.es5,
-  port: 8000
-}));
+gulp.task('serve.js.dev', function() {
+  gulp.watch('modules/**', ['broccoli.js.dev']);
+
+  jsserve(gulp, gulpPlugins, {
+    path: CONFIG.dest.js.dev.es5,
+    port: 8000
+  })();
+});
+
 
 gulp.task('serve.js.prod', jsserve(gulp, gulpPlugins, {
   path: CONFIG.dest.js.prod.es5,
