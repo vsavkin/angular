@@ -111,7 +111,16 @@ module.exports = function makeBrowserTree(options, destinationPath) {
     ]
   });
   var polymer = stew.mv(flatten(polymerFiles), 'benchmarks_external/src/tree/polymer');
-  htmlTree = mergeTrees([htmlTree, scripts, polymer, css]);
+//  htmlTree = mergeTrees([htmlTree, scripts, polymer, css]);
+
+  var reactFiles = new Funnel('.', {
+    files: [
+      'node_modules/react/dist/react.js'
+    ]
+  });
+  var react = stew.mv(flatten(reactFiles), 'benchmarks_external/src/tree/react');
+
+  htmlTree = mergeTrees([htmlTree, scripts, polymer, css, react]);
 
   es5Tree = mergeTrees([es5Tree, htmlTree]);
 
