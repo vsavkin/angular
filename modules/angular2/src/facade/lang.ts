@@ -16,9 +16,7 @@ export class BaseException extends Error {
     this.message = message;
   }
 
-  toString():string {
-    return this.message;
-  }
+  toString(): string { return this.message; }
 }
 
 export var Math = _global.Math;

@@ -16,7 +16,7 @@ var ts2dart = require('../broccoli-ts2dart');
  * A funnel starting at modules, including the given filters, and moving into the root.
  * @param include Include glob filters.
  */
-function modulesFunnel(include: string[], exclude?: string[]) {
+function modulesFunnel(include: string[], exclude ?: string[]) {
   return new Funnel('modules', {include, destDir: '/', exclude});
 }
 
@@ -44,7 +44,7 @@ function stripModulePrefix(relativePath: string): string {
 function getSourceTree() {
   // Transpile everything in 'modules' except for rtts_assertions.
   var tsInputTree = modulesFunnel(['**/*.js', '**/*.ts', '**/*.dart'],
-    ['rtts_assert/**/*', 'modules/angular2/src/util/decorators.ts']);
+                                  ['rtts_assert/**/*', 'angular2/src/util/decorators.ts']);
   var transpiled = ts2dart.transpile(tsInputTree);
   // Native sources, dart only examples, etc.
   var dartSrcs = modulesFunnel(['**/*.dart']);

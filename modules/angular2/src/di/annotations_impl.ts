@@ -1,6 +1,6 @@
-export var __esModule = true;
-
 import {CONST} from "angular2/src/facade/lang";
+
+export var __esModule = true;
 
 /**
  * A parameter annotation that specifies a dependency.

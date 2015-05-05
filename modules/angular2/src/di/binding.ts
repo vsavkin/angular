@@ -2,7 +2,13 @@ import {Type, isBlank, isPresent, CONST} from 'angular2/src/facade/lang';
 import {List, MapWrapper, ListWrapper} from 'angular2/src/facade/collection';
 import {reflector} from 'angular2/src/reflection/reflection';
 import {Key} from './key';
-import {Inject, InjectLazy, InjectPromise, Optional, DependencyAnnotation} from './annotations_impl';
+import {
+  Inject,
+  InjectLazy,
+  InjectPromise,
+  Optional,
+  DependencyAnnotation
+} from './annotations_impl';
 import {NoAnnotationError} from './exceptions';
 
 /**
@@ -13,10 +19,10 @@ export class Dependency {
   asPromise: boolean;
   lazy: boolean;
   optional: boolean;
-  properties: List<any>
+  properties: List<any>;
 
-      constructor(key: Key, asPromise: boolean, lazy: boolean, optional: boolean,
-                  properties: List<any>) {
+  constructor(key: Key, asPromise: boolean, lazy: boolean, optional: boolean,
+              properties: List<any>) {
     this.key = key;
     this.asPromise = asPromise;
     this.lazy = lazy;

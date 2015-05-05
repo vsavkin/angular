@@ -19,9 +19,7 @@ var _notFound = new Object();
 
 class _Waiting {
   promise: Promise<any>;
-  constructor(promise: Promise<any>) {
-    this.promise = promise;
-  }
+  constructor(promise: Promise<any>) { this.promise = promise; }
 }
 function _isWaiting(obj): boolean {
   return obj instanceof _Waiting;
