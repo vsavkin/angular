@@ -1,7 +1,8 @@
-import {bootstrap, onChange, NgIf, Component, Directive, View, Ancestor} from 'angular2/angular2';
+import {bootstrap, onChange, NgIf, NgFor, Component, Directive, View, Ancestor, ElementRef} from 'angular2/angular2';
 import {formDirectives, NgControl, Validators, NgFormModel, FormBuilder} from 'angular2/forms';
 
 import {RegExpWrapper, print, isPresent} from 'angular2/src/facade/lang';
+import {TimerWrapper} from 'angular2/src/facade/async';
 
 import {reflector} from 'angular2/src/reflection/reflection';
 import {ReflectionCapabilities} from 'angular2/src/reflection/reflection_capabilities';
@@ -110,16 +111,35 @@ class ShowError {
         </textarea>
       </p>
 
+      <p>
+        <label for="country-static">Static Country</label>
+        <select id="country-static" ng-control="staticCountry">
+        <option value="Canada">Canada</option>
+        <option value="US">US</option>
+      </select>
+      </p>
+      <p>
+        <label for="country-dynamic">Dynamic Country</label>
+        <select id="country-dynamic" ng-control="dynamicCountry">
+          <option *ng-for="#c of countries" [value]="c">{{c}}</option>
+        </select>
+      </p>
+
       <button type="submit" [disabled]="!f.form.valid">Submit</button>
     </form>
   `,
-  directives: [formDirectives, ShowError]
+  directives: [formDirectives, ShowError, NgFor]
 })
+
 class ModelDrivenForms {
   form;
+  countries;
 
-  constructor(fb: FormBuilder) {
+  constructor(fb: FormBuilder, private ref:ElementRef) {
+    this.countries = ["Canada", "US"];
     this.form = fb.group({
+      "staticCountry": ["US", Validators.required],
+      "dynamicCountry": ["", Validators.required],
       "firstName": ["", Validators.required],
       "middleName": [""],
       "lastName": ["", Validators.required],
@@ -128,6 +148,11 @@ class ModelDrivenForms {
       "email": ["", Validators.required],
       "comments": [""]
     });
+
+    // This is currently required because we set the value of select too soon before ng-for unrolls!
+    TimerWrapper.setTimeout(() => {
+      this.form.find("dynamicCountry").updateValue("US");
+    }, 0);
   }
 
   onSubmit() {
