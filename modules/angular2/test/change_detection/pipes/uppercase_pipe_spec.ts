@@ -16,15 +16,6 @@ export function main() {
       pipe = new UpperCasePipe();
     });
 
-    describe("supports", () => {
-      it("should support strings", () => { expect(pipe.supports(str)).toBe(true); });
-
-      it("should not support other objects", () => {
-        expect(pipe.supports(new Object())).toBe(false);
-        expect(pipe.supports(null)).toBe(false);
-      });
-    });
-
     describe("transform", () => {
 
       it("should return uppercase", () => {
@@ -39,6 +30,9 @@ export function main() {
         expect(val2).toEqual('WAT');
       });
 
+      it("should not support other objects", () => {
+        expect(() => pipe.transform(new Object())).toThrowErrorWith("Invalid argument")
+      });
     });
 
   });

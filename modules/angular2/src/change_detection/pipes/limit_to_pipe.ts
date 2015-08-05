@@ -8,7 +8,7 @@ import {
 } from 'angular2/src/facade/lang';
 import {ListWrapper} from 'angular2/src/facade/collection';
 import {Math} from 'angular2/src/facade/math';
-import {WrappedValue, Pipe, PipeFactory} from './pipe';
+import {WrappedValue, Pipe, PipeFactory, InvalidPipeArgumentException} from './pipe';
 import {ChangeDetectorRef} from '../change_detector_ref';
 
 /**
@@ -51,13 +51,14 @@ import {ChangeDetectorRef} from '../change_detector_ref';
  *     {{ 'abcdefghij' | limitTo: -100 }}    // output is 'abcdefghij'
  */
 export class LimitToPipe implements Pipe {
-  static supportsObj(obj: any): boolean { return isString(obj) || isArray(obj); }
-
-  supports(obj: any): boolean { return LimitToPipe.supportsObj(obj); }
+  supports(obj: any): boolean { return isString(obj) || isArray(obj); }
 
   transform(value: any, args: List<any> = null): any {
     if (isBlank(args) || args.length == 0) {
       throw new BaseException('limitTo pipe requires one argument');
+    }
+    if (!this.supports(value)) {
+      throw new InvalidPipeArgumentException(LimitToPipe, value);
     }
     if (isBlank(value)) return value;
     var limit: int = args[0];
@@ -77,7 +78,5 @@ export class LimitToPipe implements Pipe {
 
 @CONST()
 export class LimitToPipeFactory implements PipeFactory {
-  supports(obj: any): boolean { return LimitToPipe.supportsObj(obj); }
-
   create(cdRef: ChangeDetectorRef): Pipe { return new LimitToPipe(); }
 }

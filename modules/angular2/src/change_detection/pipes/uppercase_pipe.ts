@@ -1,5 +1,5 @@
 import {isString, StringWrapper, CONST, isBlank} from 'angular2/src/facade/lang';
-import {Pipe, BasePipe, PipeFactory} from './pipe';
+import {Pipe, BasePipe, PipeFactory, InvalidPipeArgumentException} from './pipe';
 import {ChangeDetectorRef} from '../change_detector_ref';
 
 /**
@@ -24,10 +24,11 @@ import {ChangeDetectorRef} from '../change_detector_ref';
  */
 @CONST()
 export class UpperCasePipe extends BasePipe implements PipeFactory {
-  supports(str: any): boolean { return isString(str); }
-
   transform(value: string, args: List<any> = null): string {
     if (isBlank(value)) return value;
+    if (!isString(value)) {
+      throw new InvalidPipeArgumentException(UpperCasePipe, value);
+    }
     return StringWrapper.toUpperCase(value);
   }
 

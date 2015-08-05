@@ -16,17 +16,7 @@ export function main() {
       pipe = new LowerCasePipe();
     });
 
-    describe("supports", () => {
-      it("should support strings", () => { expect(pipe.supports(str)).toBe(true); });
-
-      it("should not support other objects", () => {
-        expect(pipe.supports(new Object())).toBe(false);
-        expect(pipe.supports(null)).toBe(false);
-      });
-    });
-
     describe("transform", () => {
-
       it("should return lowercase", () => {
         var val = pipe.transform(upper);
         expect(val).toEqual(lower);
@@ -39,6 +29,9 @@ export function main() {
         expect(val2).toEqual('wat');
       });
 
+      it("should not support other objects", () => {
+        expect(() => pipe.transform(new Object())).toThrowErrorWith("Invalid argument")
+      });
     });
 
   });

@@ -14,7 +14,6 @@ import {JsonPipe} from './pipes/json_pipe';
 import {LimitToPipeFactory} from './pipes/limit_to_pipe';
 import {DatePipe} from './pipes/date_pipe';
 import {DecimalPipe, PercentPipe, CurrencyPipe} from './pipes/number_pipe';
-import {NullPipeFactory} from './pipes/null_pipe';
 import {ChangeDetection, ProtoChangeDetector, ChangeDetectorDefinition} from './interfaces';
 import {Inject, Injectable, OpaqueToken, Optional} from 'angular2/di';
 import {List, StringMap, StringMapWrapper} from 'angular2/src/facade/collection';
@@ -56,7 +55,6 @@ export {Pipes} from './pipes/pipes';
 export {IterableDiffers, IterableDiffer, IterableDifferFactory} from './differs/iterable_differs';
 export {KeyValueDiffers, KeyValueDiffer, KeyValueDifferFactory} from './differs/keyvalue_differs';
 export {WrappedValue, Pipe, PipeFactory, BasePipe} from './pipes/pipe';
-export {NullPipe, NullPipeFactory} from './pipes/null_pipe';
 
 
 export const defaultPipes: Pipes = CONST_EXPR(new Pipes({

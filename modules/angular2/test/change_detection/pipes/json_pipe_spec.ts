@@ -40,22 +40,6 @@ export function main() {
       collection = [];
     });
 
-    describe("supports", () => {
-      it("should support objects", () => { expect(pipe.supports(inceptionObj)).toBe(true); });
-
-      it("should support strings", () => { expect(pipe.supports(catString)).toBe(true); });
-
-      it("should support null", () => { expect(pipe.supports(null)).toBe(true); });
-
-      it("should support NaN", () => { expect(pipe.supports(NumberWrapper.NaN)).toBe(true); });
-
-      if (!IS_DARTIUM) {
-        it("should support undefined",
-           () => { expect(pipe.supports(canHasUndefined)).toBe(true); });
-      }
-
-    });
-
     describe("transform", () => {
       it("should return JSON-formatted string",
          () => { expect(pipe.transform(inceptionObj)).toEqual(inceptionObjString); });

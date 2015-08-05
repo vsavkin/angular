@@ -1,6 +1,6 @@
 import {isBlank, isPresent, isPromise, CONST, BaseException} from 'angular2/src/facade/lang';
 import {Observable, Promise, ObservableWrapper} from 'angular2/src/facade/async';
-import {Pipe, WrappedValue, PipeFactory} from './pipe';
+import {Pipe, WrappedValue, PipeFactory, InvalidPipeArgumentException} from './pipe';
 import {ChangeDetectorRef} from '../change_detector_ref';
 
 
@@ -62,8 +62,6 @@ export class AsyncPipe implements Pipe {
 
   constructor(public _ref: ChangeDetectorRef) {}
 
-  supports(obj: any): boolean { return true; }
-
   onDestroy(): void {
     if (isPresent(this._subscription)) {
       this._dispose();
@@ -98,13 +96,13 @@ export class AsyncPipe implements Pipe {
         this._strategy.createSubscription(obj, value => this._updateLatestValue(obj, value));
   }
 
-  _selectStrategy(obj: Observable | Promise<any>) {
+  _selectStrategy(obj: Observable | Promise<any>):any {
     if (isPromise(obj)) {
       return _promiseStrategy;
     } else if (ObservableWrapper.isObservable(obj)) {
       return _observableStrategy;
     } else {
-      throw new BaseException(`Async pipe does not support object '${obj}'`);
+      throw new InvalidPipeArgumentException(AsyncPipe, obj);
     }
   }
 
@@ -129,6 +127,5 @@ export class AsyncPipe implements Pipe {
  */
 @CONST()
 export class AsyncPipeFactory implements PipeFactory {
-  supports(obj: any): boolean { return true; }
   create(cdRef: ChangeDetectorRef): Pipe { return new AsyncPipe(cdRef); }
 }

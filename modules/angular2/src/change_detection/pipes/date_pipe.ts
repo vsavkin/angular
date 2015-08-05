@@ -10,7 +10,7 @@ import {
 } from 'angular2/src/facade/lang';
 import {DateFormatter} from 'angular2/src/facade/intl';
 import {StringMapWrapper, ListWrapper} from 'angular2/src/facade/collection';
-import {Pipe, BasePipe, PipeFactory} from './pipe';
+import {Pipe, BasePipe, PipeFactory, InvalidPipeArgumentException} from './pipe';
 import {ChangeDetectorRef} from '../change_detector_ref';
 
 // TODO: move to a global configable location along with other i18n components.
@@ -86,6 +86,11 @@ export class DatePipe extends BasePipe implements PipeFactory {
 
   transform(value: any, args: List<any>): string {
     if (isBlank(value)) return null;
+    
+    if (!this.supports(value)) {
+      throw new InvalidPipeArgumentException(DatePipe, value);
+    }
+
     var pattern: string = isPresent(args) && args.length > 0 ? args[0] : 'mediumDate';
     if (isNumber(value)) {
       value = DateWrapper.fromMillis(value);
