@@ -25,19 +25,20 @@ export class Pipes {
    * })
    * ```
    */
-  config: StringMap<string, PipeFactory[]>;
+  config: StringMap<string, PipeFactory>;
 
 
-  constructor(config: StringMap<string, PipeFactory[]>) { this.config = config; }
+  constructor(config: StringMap<string, PipeFactory>) { this.config = config; }
 
   get(type: string, obj: any, cdRef?: ChangeDetectorRef, existingPipe?: Pipe): Pipe {
     if (isPresent(existingPipe) && existingPipe.supports(obj)) return existingPipe;
 
     if (isPresent(existingPipe)) existingPipe.onDestroy();
 
-    var factories = this._getListOfFactories(type, obj);
-    var factory = this._getMatchingFactory(factories, type, obj);
-
+    var factory = this.config[type];
+    if (isBlank(factory)) {
+      throw new BaseException(`Cannot find '${type}' pipe supporting object '${obj}'`);
+    }
     return factory.create(cdRef);
   }
 
@@ -96,22 +97,5 @@ export class Pipes {
       });
     }
     return new Pipes(config);
-  }
-
-  private _getListOfFactories(type: string, obj: any): PipeFactory[] {
-    var listOfFactories = this.config[type];
-    if (isBlank(listOfFactories)) {
-      throw new BaseException(`Cannot find '${type}' pipe supporting object '${obj}'`);
-    }
-    return listOfFactories;
-  }
-
-  private _getMatchingFactory(listOfFactories: PipeFactory[], type: string, obj: any): PipeFactory {
-    var matchingFactory =
-        ListWrapper.find(listOfFactories, pipeFactory => pipeFactory.supports(obj));
-    if (isBlank(matchingFactory)) {
-      throw new BaseException(`Cannot find '${type}' pipe supporting object '${obj}'`);
-    }
-    return matchingFactory;
   }
 }

@@ -21,6 +21,7 @@ var _re = RegExpWrapper.create('^(\\d+)?\\.((\\d+)(\\-(\\d+))?)?$');
 export class NumberPipe extends BasePipe implements PipeFactory {
   static _format(value: number, style: NumberFormatStyle, digits: string, currency: string = null,
                  currencyAsSymbol: boolean = false): string {
+    if(isBlank(value)) return null;
     var minInt = 1, minFraction = 0, maxFraction = 3;
     if (isPresent(digits)) {
       var parts = RegExpWrapper.firstMatch(_re, digits);

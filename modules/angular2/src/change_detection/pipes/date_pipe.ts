@@ -5,6 +5,7 @@ import {
   Date,
   DateWrapper,
   CONST,
+  isBlank,
   FunctionWrapper
 } from 'angular2/src/facade/lang';
 import {DateFormatter} from 'angular2/src/facade/intl';
@@ -84,6 +85,7 @@ export class DatePipe extends BasePipe implements PipeFactory {
 
 
   transform(value: any, args: List<any>): string {
+    if (isBlank(value)) return null;
     var pattern: string = isPresent(args) && args.length > 0 ? args[0] : 'mediumDate';
     if (isNumber(value)) {
       value = DateWrapper.fromMillis(value);

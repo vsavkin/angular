@@ -16,7 +16,7 @@ import {Pipes} from 'angular2/src/change_detection/pipes/pipes';
 import {PipeFactory} from 'angular2/src/change_detection/pipes/pipe';
 
 export function main() {
-  describe("pipe registry", () => {
+  xdescribe("pipe registry", () => {
     var firstPipe;
     var secondPipe;
 

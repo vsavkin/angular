@@ -1,4 +1,4 @@
-import {isString, StringWrapper, CONST} from 'angular2/src/facade/lang';
+import {isString, StringWrapper, CONST, isBlank} from 'angular2/src/facade/lang';
 import {Pipe, BasePipe, PipeFactory} from './pipe';
 import {ChangeDetectorRef} from '../change_detector_ref';
 
@@ -27,6 +27,7 @@ export class LowerCasePipe extends BasePipe implements PipeFactory {
   supports(str: any): boolean { return isString(str); }
 
   transform(value: string, args: List<any> = null): string {
+    if (isBlank(value)) return value;
     return StringWrapper.toLowerCase(value);
   }
 

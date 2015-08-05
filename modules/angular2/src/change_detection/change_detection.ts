@@ -59,6 +59,18 @@ export {WrappedValue, Pipe, PipeFactory, BasePipe} from './pipes/pipe';
 export {NullPipe, NullPipeFactory} from './pipes/null_pipe';
 
 
+export const defaultPipes: Pipes = CONST_EXPR(new Pipes({
+  "async": new AsyncPipeFactory(),
+  "uppercase": new UpperCasePipe(),
+  "lowercase": new LowerCasePipe(),
+  "json": new JsonPipe(),
+  "limitTo": new LimitToPipeFactory(),
+  "number": new DecimalPipe(),
+  "percent": new PercentPipe(),
+  "currency": new CurrencyPipe(),
+  "date": new DatePipe()
+}));
+
 /**
  * Structural diffing for `Object`s and `Map`s.
  */
@@ -70,73 +82,6 @@ export const keyValDiff: KeyValueDifferFactory[] =
  */
 export const iterableDiff: IterableDifferFactory[] =
     CONST_EXPR([CONST_EXPR(new DefaultIterableDifferFactory())]);
-
-/**
- * Async binding to such types as Observable.
- */
-export const async: List<PipeFactory> =
-    CONST_EXPR([CONST_EXPR(new AsyncPipeFactory()), CONST_EXPR(new NullPipeFactory())]);
-
-/**
- * Uppercase text transform.
- */
-export const uppercase: List<PipeFactory> =
-    CONST_EXPR([CONST_EXPR(new UpperCasePipe()), CONST_EXPR(new NullPipeFactory())]);
-
-/**
- * Lowercase text transform.
- */
-export const lowercase: List<PipeFactory> =
-    CONST_EXPR([CONST_EXPR(new LowerCasePipe()), CONST_EXPR(new NullPipeFactory())]);
-
-/**
- * Json stringify transform.
- */
-export const json: List<PipeFactory> =
-    CONST_EXPR([CONST_EXPR(new JsonPipe()), CONST_EXPR(new NullPipeFactory())]);
-
-/**
- * LimitTo text transform.
- */
-export const limitTo: List<PipeFactory> =
-    CONST_EXPR([CONST_EXPR(new LimitToPipeFactory()), CONST_EXPR(new NullPipeFactory())]);
-
-/**
- * Number number transform.
- */
-export const decimal: List<PipeFactory> =
-    CONST_EXPR([CONST_EXPR(new DecimalPipe()), CONST_EXPR(new NullPipeFactory())]);
-
-/**
- * Percent number transform.
- */
-export const percent: List<PipeFactory> =
-    CONST_EXPR([CONST_EXPR(new PercentPipe()), CONST_EXPR(new NullPipeFactory())]);
-
-/**
- * Currency number transform.
- */
-export const currency: List<PipeFactory> =
-    CONST_EXPR([CONST_EXPR(new CurrencyPipe()), CONST_EXPR(new NullPipeFactory())]);
-
-/**
- * Date/time formatter.
- */
-export const date: List<PipeFactory> =
-    CONST_EXPR([CONST_EXPR(new DatePipe()), CONST_EXPR(new NullPipeFactory())]);
-
-
-export const defaultPipes: Pipes = CONST_EXPR(new Pipes({
-  "async": async,
-  "uppercase": uppercase,
-  "lowercase": lowercase,
-  "json": json,
-  "limitTo": limitTo,
-  "number": decimal,
-  "percent": percent,
-  "currency": currency,
-  "date": date
-}));
 
 export const defaultIterableDiffers = CONST_EXPR(new IterableDiffers(iterableDiff));
 

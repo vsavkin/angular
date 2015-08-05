@@ -59,6 +59,7 @@ export class LimitToPipe implements Pipe {
     if (isBlank(args) || args.length == 0) {
       throw new BaseException('limitTo pipe requires one argument');
     }
+    if (isBlank(value)) return value;
     var limit: int = args[0];
     var left = 0, right = Math.min(limit, value.length);
     if (limit < 0) {

@@ -1593,7 +1593,7 @@ class PushCmpWithRef {
 
 @Injectable()
 class PipesWithDouble extends Pipes {
-  constructor() { super({"double": [new DoublePipeFactory()]}); }
+  constructor() { super({"double": new DoublePipeFactory()}); }
 }
 
 @Component({
