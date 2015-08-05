@@ -74,10 +74,6 @@ export class BasePipe implements Pipe {
   transform(value: any, args: List<any>): any { return _abstract(); }
 }
 
-export interface PipeFactory {
-  create(cdRef: ChangeDetectorRef): Pipe;
-}
-
 export class InvalidPipeArgumentException extends BaseException {
   constructor(type:Type, value:Object) {
     super(`Invalid argument '${value}' for pipe '${type}'`);

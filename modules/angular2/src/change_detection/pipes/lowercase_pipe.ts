@@ -1,5 +1,5 @@
 import {isString, StringWrapper, CONST, isBlank} from 'angular2/src/facade/lang';
-import {Pipe, BasePipe, PipeFactory, InvalidPipeArgumentException} from './pipe';
+import {Pipe, BasePipe, InvalidPipeArgumentException} from './pipe';
 import {ChangeDetectorRef} from '../change_detector_ref';
 
 /**
@@ -23,7 +23,7 @@ import {ChangeDetectorRef} from '../change_detector_ref';
  * ```
  */
 @CONST()
-export class LowerCasePipe extends BasePipe implements PipeFactory {
+export class LowerCasePipe extends BasePipe {
   transform(value: string, args: List<any> = null): string {
     if (isBlank(value)) return value;
     if (!isString(value)) {
@@ -31,6 +31,4 @@ export class LowerCasePipe extends BasePipe implements PipeFactory {
     }
     return StringWrapper.toLowerCase(value);
   }
-
-  create(cdRef: ChangeDetectorRef): Pipe { return this; }
 }

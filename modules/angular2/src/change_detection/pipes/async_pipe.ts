@@ -1,6 +1,6 @@
 import {isBlank, isPresent, isPromise, CONST, BaseException} from 'angular2/src/facade/lang';
 import {Observable, Promise, ObservableWrapper} from 'angular2/src/facade/async';
-import {Pipe, WrappedValue, PipeFactory, InvalidPipeArgumentException} from './pipe';
+import {Pipe, WrappedValue, InvalidPipeArgumentException} from './pipe';
 import {ChangeDetectorRef} from '../change_detector_ref';
 
 
@@ -120,12 +120,4 @@ export class AsyncPipe implements Pipe {
       this._ref.requestCheck();
     }
   }
-}
-
-/**
- * Provides a factory for [AsyncPipe].
- */
-@CONST()
-export class AsyncPipeFactory implements PipeFactory {
-  create(cdRef: ChangeDetectorRef): Pipe { return new AsyncPipe(cdRef); }
 }

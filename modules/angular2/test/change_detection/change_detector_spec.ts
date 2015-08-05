@@ -888,17 +888,10 @@ class MultiArgPipe implements Pipe {
 }
 
 class FakePipes extends Pipes {
-  numberOfLookups: number;
-  pipeType: string;
-  factory: Function;
+  numberOfLookups = 0;
   cdRef: any;
 
-  constructor(pipeType, factory) {
-    super({});
-    this.pipeType = pipeType;
-    this.factory = factory;
-    this.numberOfLookups = 0;
-  }
+  constructor(public pipeType: string, public factory: Function) { super(null, null); }
 
   get(type: string, cdRef?) {
     if (type != this.pipeType) return null;

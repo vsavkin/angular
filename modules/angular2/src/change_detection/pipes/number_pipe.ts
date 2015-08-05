@@ -11,14 +11,14 @@ import {
 } from 'angular2/src/facade/lang';
 import {NumberFormatter, NumberFormatStyle} from 'angular2/src/facade/intl';
 import {ListWrapper} from 'angular2/src/facade/collection';
-import {Pipe, BasePipe, PipeFactory, InvalidPipeArgumentException} from './pipe';
+import {Pipe, BasePipe, InvalidPipeArgumentException} from './pipe';
 import {ChangeDetectorRef} from '../change_detector_ref';
 
 var defaultLocale: string = 'en-US';
 var _re = RegExpWrapper.create('^(\\d+)?\\.((\\d+)(\\-(\\d+))?)?$');
 
 @CONST()
-export class NumberPipe extends BasePipe implements PipeFactory {
+export class NumberPipe extends BasePipe {
   static _format(value: number, style: NumberFormatStyle, digits: string, currency: string = null,
                  currencyAsSymbol: boolean = false): string {
     if(isBlank(value)) return null;
@@ -49,8 +49,6 @@ export class NumberPipe extends BasePipe implements PipeFactory {
       currencyAsSymbol: currencyAsSymbol
     });
   }
-
-  create(cdRef: ChangeDetectorRef): Pipe { return this; }
 }
 
 /**

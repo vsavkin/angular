@@ -10,7 +10,7 @@ import {
 } from 'angular2/src/facade/lang';
 import {DateFormatter} from 'angular2/src/facade/intl';
 import {StringMapWrapper, ListWrapper} from 'angular2/src/facade/collection';
-import {Pipe, BasePipe, PipeFactory, InvalidPipeArgumentException} from './pipe';
+import {Pipe, BasePipe, InvalidPipeArgumentException} from './pipe';
 import {ChangeDetectorRef} from '../change_detector_ref';
 
 // TODO: move to a global configable location along with other i18n components.
@@ -71,7 +71,7 @@ var defaultLocale: string = 'en-US';
  *     {{ dateObj | date:'mmss' }}        // output is '43:11'
  */
 @CONST()
-export class DatePipe extends BasePipe implements PipeFactory {
+export class DatePipe extends BasePipe {
   static _ALIASES = {
     'medium': 'yMMMdjms',
     'short': 'yMdjm',
@@ -86,7 +86,7 @@ export class DatePipe extends BasePipe implements PipeFactory {
 
   transform(value: any, args: List<any>): string {
     if (isBlank(value)) return null;
-    
+
     if (!this.supports(value)) {
       throw new InvalidPipeArgumentException(DatePipe, value);
     }
@@ -102,6 +102,4 @@ export class DatePipe extends BasePipe implements PipeFactory {
   }
 
   supports(obj: any): boolean { return isDate(obj) || isNumber(obj); }
-
-  create(cdRef: ChangeDetectorRef): Pipe { return this; }
 }

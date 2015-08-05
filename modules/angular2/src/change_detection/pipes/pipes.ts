@@ -1,9 +1,8 @@
 import {ListWrapper, isListLikeIterable, StringMapWrapper} from 'angular2/src/facade/collection';
-import {isBlank, isPresent, BaseException, CONST} from 'angular2/src/facade/lang';
-import {Pipe, PipeFactory} from './pipe';
-import {Injectable, OptionalMetadata, SkipSelfMetadata} from 'angular2/di';
+import {isBlank, isPresent, BaseException, CONST, Type} from 'angular2/src/facade/lang';
+import {Pipe} from './pipe';
+import {Injectable, OptionalMetadata, SkipSelfMetadata, Binding, Injector} from 'angular2/di';
 import {ChangeDetectorRef} from '../change_detector_ref';
-import {Binding} from 'angular2/di';
 
 @Injectable()
 @CONST()
@@ -25,25 +24,18 @@ export class Pipes {
    * })
    * ```
    */
-  config: StringMap<string, PipeFactory>;
+  private config: StringMap<string, Type|Binding>;
 
+  constructor(config: StringMap<string, Type|Binding>, public injector: Injector) { this.config = config; }
 
-  constructor(config: StringMap<string, PipeFactory>) { this.config = config; }
-
-  get(type: string, cdRef?: ChangeDetectorRef): Pipe {
-    var factory = this.config[type];
-    if (isBlank(factory)) {
+  get(type: string, cdRef: ChangeDetectorRef): Pipe {
+    var typeOrBinding = this.config[type];
+    if (isBlank(typeOrBinding)) {
       throw new BaseException(`Cannot find pipe '${type}'.`);
     }
-    return factory.create(cdRef);
+    // this is a tmp workaround and will be removed
+    return this.injector.resolveAndCreateChild([ChangeDetectorRef]).resolveAndInstantiate(typeOrBinding);
   }
-
-
-  // instantiate(type, injector) {
-  //   var resolved = bind(type).toClass(type).resolve();
-  //   var args = resolved.dependencies.map(d => injector.getByDependency(resolved, d, PUBLIC_AND_PRIVATE));
-  //   var pipe = resolved.factory(*args);
-  // }
 
   /**
    * Takes a {@link Pipes} config object and returns a binding used to extend the
@@ -73,32 +65,32 @@ export class Pipes {
    * })
    * ```
    */
-  static extend(config: StringMap<string, PipeFactory[]>): Binding {
-    return new Binding(Pipes, {
-      toFactory: (pipes: Pipes) => {
-        if (isBlank(pipes)) {
-          // Typically would occur when calling Pipe.extend inside of dependencies passed to
-          // bootstrap(), which would override default pipes instead of extending them.
-          throw new BaseException('Cannot extend Pipes without a parent injector');
-        }
-        return Pipes.create(config, pipes);
-      },
-      // Dependency technically isn't optional, but we can provide a better error message this way.
-      deps: [[Pipes, new SkipSelfMetadata(), new OptionalMetadata()]]
-    });
-  }
+  // static extend(config: StringMap<string, Type|Binding>): Binding {
+  //   return new Binding(Pipes, {
+  //     toFactory: (pipes: Pipes) => {
+  //       if (isBlank(pipes)) {
+  //         // Typically would occur when calling Pipe.extend inside of dependencies passed to
+  //         // bootstrap(), which would override default pipes instead of extending them.
+  //         throw new BaseException('Cannot extend Pipes without a parent injector');
+  //       }
+  //       return Pipes.create(config, pipes);
+  //     },
+  //     // Dependency technically isn't optional, but we can provide a better error message this way.
+  //     deps: [[Pipes, new SkipSelfMetadata(), new OptionalMetadata()]]
+  //   });
+  // }
 
-  static create(config: StringMap<string, PipeFactory[]>, pipes: Pipes = null): Pipes {
-    if (isPresent(pipes)) {
-      StringMapWrapper.forEach(pipes.config, (v: PipeFactory[], k: string) => {
-        if (StringMapWrapper.contains(config, k)) {
-          var configFactories: PipeFactory[] = config[k];
-          config[k] = configFactories.concat(v);
-        } else {
-          config[k] = ListWrapper.clone(v);
-        }
-      });
-    }
-    return new Pipes(config);
-  }
+  // static create(config: StringMap<string, Type|Binding>, pipes: Pipes = null): Pipes {
+  //   if (isPresent(pipes)) {
+  //     StringMapWrapper.forEach(pipes.config, (v: Type|Binding, k: string) => {
+  //       if (StringMapWrapper.contains(config, k)) {
+  //         var configFactories: PipeFactory[] = config[k];
+  //         config[k] = configFactories.concat(v);
+  //       } else {
+  //         config[k] = ListWrapper.clone(v);
+  //       }
+  //     });
+  //   }
+  //   return new Pipes(config);
+  // }
 }

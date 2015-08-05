@@ -50,7 +50,6 @@ import {
   SkipSelfMetadata
 } from 'angular2/di';
 import {
-  PipeFactory,
   Pipes,
   defaultPipes,
   Pipe,
@@ -1593,7 +1592,7 @@ class PushCmpWithRef {
 
 @Injectable()
 class PipesWithDouble extends Pipes {
-  constructor() { super({"double": new DoublePipeFactory()}); }
+  constructor(injector: Injector) { super({"double": DoublePipe}, injector); }
 }
 
 @Component({
@@ -1687,17 +1686,7 @@ class SomeViewport {
 @Injectable()
 class DoublePipe implements Pipe {
   onDestroy() {}
-
-  supports(obj) { return true; }
-
   transform(value, args = null) { return `${value}${value}`; }
-}
-
-@Injectable()
-class DoublePipeFactory implements PipeFactory {
-  supports(obj) { return true; }
-
-  create(cdRef) { return new DoublePipe(); }
 }
 
 @Directive({selector: '[emitter]', events: ['event']})

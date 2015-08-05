@@ -8,7 +8,7 @@ import {
 } from 'angular2/src/facade/lang';
 import {ListWrapper} from 'angular2/src/facade/collection';
 import {Math} from 'angular2/src/facade/math';
-import {WrappedValue, Pipe, PipeFactory, InvalidPipeArgumentException} from './pipe';
+import {WrappedValue, Pipe, InvalidPipeArgumentException} from './pipe';
 import {ChangeDetectorRef} from '../change_detector_ref';
 
 /**
@@ -74,9 +74,4 @@ export class LimitToPipe implements Pipe {
   }
 
   onDestroy(): void {}
-}
-
-@CONST()
-export class LimitToPipeFactory implements PipeFactory {
-  create(cdRef: ChangeDetectorRef): Pipe { return new LimitToPipe(); }
 }

@@ -9,12 +9,10 @@ import {
   beforeEach,
   afterEach,
   SpyPipe,
-  SpyPipeFactory
 } from 'angular2/test_lib';
 
 import {Injector, bind} from 'angular2/di';
 import {Pipes} from 'angular2/src/change_detection/pipes/pipes';
-import {PipeFactory} from 'angular2/src/change_detection/pipes/pipe';
 
 export function main() {
   xdescribe("pipe registry", () => {
@@ -28,8 +26,8 @@ export function main() {
       firstPipe = <any>new SpyPipe();
       secondPipe = <any>new SpyPipe();
 
-      firstPipeFactory = <any>new SpyPipeFactory();
-      secondPipeFactory = <any>new SpyPipeFactory();
+      // firstPipeFactory = <any>new SpyPipeFactory();
+      // secondPipeFactory = <any>new SpyPipeFactory();
     });
 
     // it("should return an existing pipe if it can support the passed in object", () => {

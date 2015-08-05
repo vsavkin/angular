@@ -21,8 +21,6 @@ export class SpyPipe extends SpyObject {
   constructor() { super(BasePipe); }
 }
 
-export class SpyPipeFactory extends SpyObject {}
-
 export class SpyDependencyProvider extends SpyObject {}
 
 export class SpyIterableDifferFactory extends SpyObject {}
