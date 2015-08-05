@@ -33,7 +33,7 @@ export class Pipes {
   get(type: string, cdRef?: ChangeDetectorRef): Pipe {
     var factory = this.config[type];
     if (isBlank(factory)) {
-      throw new BaseException(`Cannot find '${type}' pipe supporting object '${obj}'`);
+      throw new BaseException(`Cannot find pipe '${type}'.`);
     }
     return factory.create(cdRef);
   }

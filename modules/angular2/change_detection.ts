@@ -30,7 +30,5 @@ export {
   KeyValueDiffer,
   KeyValueDifferFactory,
   PipeFactory,
-  BasePipe,
-  NullPipe,
-  NullPipeFactory
+  BasePipe
 } from 'angular2/src/change_detection/change_detection';
