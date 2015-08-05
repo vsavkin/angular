@@ -24,3 +24,5 @@ export class SpyPipe extends SpyObject {
 export class SpyDependencyProvider extends SpyObject {}
 
 export class SpyIterableDifferFactory extends SpyObject {}
+
+export class SpyInjector extends SpyObject {}

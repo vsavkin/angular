@@ -1,7 +1,7 @@
 import {ListWrapper, isListLikeIterable, StringMapWrapper} from 'angular2/src/facade/collection';
 import {isBlank, isPresent, BaseException, CONST, Type} from 'angular2/src/facade/lang';
 import {Pipe} from './pipe';
-import {Injectable, OptionalMetadata, SkipSelfMetadata, Binding, Injector} from 'angular2/di';
+import {Injectable, OptionalMetadata, SkipSelfMetadata, Binding, Injector, bind} from 'angular2/di';
 import {ChangeDetectorRef} from '../change_detector_ref';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class Pipes {
    * })
    * ```
    */
-  private config: StringMap<string, Type|Binding>;
+  config: StringMap<string, Type|Binding>;
 
   constructor(config: StringMap<string, Type|Binding>, public injector: Injector) { this.config = config; }
 
@@ -34,7 +34,7 @@ export class Pipes {
       throw new BaseException(`Cannot find pipe '${type}'.`);
     }
     // this is a tmp workaround and will be removed
-    return this.injector.resolveAndCreateChild([ChangeDetectorRef]).resolveAndInstantiate(typeOrBinding);
+    return this.injector.resolveAndCreateChild([bind(ChangeDetectorRef).toValue(cdRef)]).resolveAndInstantiate(typeOrBinding);
   }
 
   /**
@@ -65,32 +65,26 @@ export class Pipes {
    * })
    * ```
    */
-  // static extend(config: StringMap<string, Type|Binding>): Binding {
-  //   return new Binding(Pipes, {
-  //     toFactory: (pipes: Pipes) => {
-  //       if (isBlank(pipes)) {
-  //         // Typically would occur when calling Pipe.extend inside of dependencies passed to
-  //         // bootstrap(), which would override default pipes instead of extending them.
-  //         throw new BaseException('Cannot extend Pipes without a parent injector');
-  //       }
-  //       return Pipes.create(config, pipes);
-  //     },
-  //     // Dependency technically isn't optional, but we can provide a better error message this way.
-  //     deps: [[Pipes, new SkipSelfMetadata(), new OptionalMetadata()]]
-  //   });
-  // }
+  static extend(config: StringMap<string, Type|Binding>): Binding {
+    return new Binding(Pipes, {
+      toFactory: (pipes: Pipes, injector: Injector) => {
+        if (isBlank(pipes)) {
+          // Typically would occur when calling Pipe.extend inside of dependencies passed to
+          // bootstrap(), which would override default pipes instead of extending them.
+          throw new BaseException('Cannot extend Pipes without a parent injector');
+        }
+        return Pipes.create(config, injector, pipes);
+      },
+      // Dependency technically isn't optional, but we can provide a better error message this way.
+      deps: [[Pipes, new SkipSelfMetadata(), new OptionalMetadata()], Injector]
+    });
+  }
 
-  // static create(config: StringMap<string, Type|Binding>, pipes: Pipes = null): Pipes {
-  //   if (isPresent(pipes)) {
-  //     StringMapWrapper.forEach(pipes.config, (v: Type|Binding, k: string) => {
-  //       if (StringMapWrapper.contains(config, k)) {
-  //         var configFactories: PipeFactory[] = config[k];
-  //         config[k] = configFactories.concat(v);
-  //       } else {
-  //         config[k] = ListWrapper.clone(v);
-  //       }
-  //     });
-  //   }
-  //   return new Pipes(config);
-  // }
+  static create(config: StringMap<string, Type|Binding>, injector: Injector, pipes: Pipes = null): Pipes {
+    if (isPresent(pipes)) {
+      return new Pipes(StringMapWrapper.merge(pipes.config, config), injector);
+    } else {
+      return new Pipes(config, injector);
+    }
+  }
 }
