@@ -23,7 +23,7 @@ export function main() {
       });
 
       it("should not support other objects", () => {
-        expect(() => pipe.transform(new Object())).toThrowErrorWith("Invalid argument");
+        expect(() => pipe.transform(new Object(), [])).toThrowError();
       });
     });
   });
@@ -40,7 +40,7 @@ export function main() {
       });
 
       it("should not support other objects", () => {
-        expect(() => pipe.transform(new Object())).toThrowErrorWith("Invalid argument");
+        expect(() => pipe.transform(new Object(), [])).toThrowError();
       });
     });
   });
@@ -57,7 +57,7 @@ export function main() {
       });
 
       it("should not support other objects", () => {
-        expect(() => pipe.transform(new Object())).toThrowErrorWith("Invalid argument");
+       expect(() => pipe.transform(new Object(), [])).toThrowError();
       });
     });
   });
