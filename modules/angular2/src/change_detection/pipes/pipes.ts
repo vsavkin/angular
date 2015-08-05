@@ -30,11 +30,7 @@ export class Pipes {
 
   constructor(config: StringMap<string, PipeFactory>) { this.config = config; }
 
-  get(type: string, obj: any, cdRef?: ChangeDetectorRef, existingPipe?: Pipe): Pipe {
-    if (isPresent(existingPipe) && existingPipe.supports(obj)) return existingPipe;
-
-    if (isPresent(existingPipe)) existingPipe.onDestroy();
-
+  get(type: string, cdRef?: ChangeDetectorRef): Pipe {
     var factory = this.config[type];
     if (isBlank(factory)) {
       throw new BaseException(`Cannot find '${type}' pipe supporting object '${obj}'`);

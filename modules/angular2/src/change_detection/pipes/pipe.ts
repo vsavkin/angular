@@ -79,7 +79,7 @@ export interface PipeFactory {
 }
 
 export class InvalidPipeArgumentException extends BaseException {
-  constructor(public type:Type, public value:Object) {
+  constructor(type:Type, value:Object) {
     super(`Invalid argument '${value}' for pipe '${type}'`);
   }
 }
