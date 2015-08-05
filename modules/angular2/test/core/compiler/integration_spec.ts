@@ -35,7 +35,7 @@ import {
   CONST,
   CONST_EXPR
 } from 'angular2/src/facade/lang';
-import {PromiseWrapper, EventEmitter, ObservableWrapper} from 'angular2/src/facade/async';
+import {PromiseWrapper, EventEmitter, ObservableWrapper, PromiseCompleter, Promise} from 'angular2/src/facade/async';
 
 import {
   Injector,
@@ -672,6 +672,32 @@ export function main() {
 
                          async.done();
                        })}));
+
+       it('should be checked when an async pipe requests a check',
+          inject([TestComponentBuilder], fakeAsync((tcb: TestComponentBuilder) => {
+              tcb = tcb.overrideView(MyComp, new viewAnn.View({
+                template: '<push-cmp-with-async #cmp></push-cmp-with-async>',
+                directives: [[[PushCmpWithAsyncPipe]]]
+              }));
+
+              var rootTC;
+              tcb.createAsync(MyComp).then(root => { rootTC = root; });
+              tick();
+
+              var cmp = rootTC.componentViewChildren[0].getLocal('cmp');
+              rootTC.detectChanges();
+              expect(cmp.numberOfChecks).toEqual(1);
+
+              rootTC.detectChanges();
+              rootTC.detectChanges();
+              expect(cmp.numberOfChecks).toEqual(1);
+
+              cmp.resolve(2);
+              tick();
+
+              rootTC.detectChanges();
+              expect(cmp.numberOfChecks).toEqual(2);
+            })));
       });
 
       it('should create a component that injects an @Host',
@@ -1588,6 +1614,29 @@ class PushCmpWithRef {
   }
 
   propagate() { this.ref.requestCheck(); }
+}
+
+@Component({selector: 'push-cmp-with-async', changeDetection: ON_PUSH})
+@View({template: '{{field | async}}'})
+@Injectable()
+class PushCmpWithAsyncPipe {
+  numberOfChecks: number = 0;
+  promise: Promise<any>;
+  completer: PromiseCompleter<any>;
+
+  constructor() {
+    this.completer = PromiseWrapper.completer();
+    this.promise = this.completer.promise;
+  }
+
+  get field() {
+    this.numberOfChecks++;
+    return this.promise;
+  }
+
+  resolve(value) {
+    this.completer.resolve(value);
+  }
 }
 
 @Injectable()

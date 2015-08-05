@@ -14,12 +14,12 @@ import {Injector, bind} from 'angular2/di';
 import {Pipes} from 'angular2/src/change_detection/pipes/pipes';
 import {Pipe} from 'angular2/src/change_detection/pipes/pipe';
 
-class APipe implements APipe {
+class APipe implements Pipe {
   transform(a, b) {}
   onDestroy() {}
 }
 
-class AnotherPipe implements APipe {
+class AnotherPipe implements Pipe {
   transform(a, b) {}
   onDestroy() {}
 }
