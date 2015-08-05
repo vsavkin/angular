@@ -38,6 +38,13 @@ export class Pipes {
     return factory.create(cdRef);
   }
 
+
+  // instantiate(type, injector) {
+  //   var resolved = bind(type).toClass(type).resolve();
+  //   var args = resolved.dependencies.map(d => injector.getByDependency(resolved, d, PUBLIC_AND_PRIVATE));
+  //   var pipe = resolved.factory(*args);
+  // }
+
   /**
    * Takes a {@link Pipes} config object and returns a binding used to extend the
    * inherited {@link Pipes} instance with the provided config and return a new

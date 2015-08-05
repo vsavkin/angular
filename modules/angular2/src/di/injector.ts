@@ -554,11 +554,22 @@ export class Injector {
     return inj;
   }
 
+  resolveAndInstantiate(binding: Type|Binding) {
+    return this.instantiate(Injector.resolve([binding])[0]);
+  }
+
+  instantiate(binding: ResolvedBinding): any {
+    return this._instantiate(binding, PUBLIC_AND_PRIVATE);
+  }
+
   _new(binding: ResolvedBinding, visibility: number): any {
     if (this._constructionCounter++ > this._strategy.getMaxNumberOfObjects()) {
       throw new CyclicDependencyError(this, binding.key);
     }
+    return this._instantiate(binding, visibility);
+  }
 
+  private _instantiate(binding: ResolvedBinding, visibility: number): any {
     var factory = binding.factory;
     var deps = binding.dependencies;
     var length = deps.length;
