@@ -9,6 +9,7 @@ import {ElementRef} from './element_ref';
 import {TemplateRef} from './template_ref';
 import {Renderer, RenderViewWithFragments} from 'angular2/src/render/api';
 import {Locals} from 'angular2/src/change_detection/change_detection';
+import {Pipes} from 'angular2/src/change_detection/pipes/pipes';
 import {RenderViewRef, RenderFragmentRef, ViewType} from 'angular2/src/render/api';
 
 @Injectable()
@@ -206,7 +207,7 @@ export class AppViewManagerUtils {
             this._setUpHostActions(currView, elementInjector, boundElementIndex);
           }
         }
-        var pipes = this._getPipes(imperativelyCreatedInjector, hostElementInjector);
+        var pipes = new Pipes(currView.proto.protoPipes, hostElementInjector ? hostElementInjector.getInjector() : null);
         currView.changeDetector.hydrate(currView.context, currView.locals, currView, pipes);
         viewIdx++;
       }

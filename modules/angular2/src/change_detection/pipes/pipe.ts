@@ -1,4 +1,5 @@
 import {ABSTRACT, BaseException, CONST, Type} from 'angular2/src/facade/lang';
+import {Binding, ResolvedBinding, Dependency, Key} from 'angular2/di';
 
 /**
  * Indicates that the result of a {@link Pipe} transformation has changed even though the reference
@@ -81,4 +82,17 @@ export class InvalidPipeArgumentException extends BaseException {
 
 function _abstract() {
   throw new BaseException('This method is abstract');
+}
+
+
+export class PipeBinding extends ResolvedBinding {
+  constructor(public name: string, key: Key, factory: Function, dependencies: Dependency[]) {
+    super(key, factory, dependencies);
+  }
+
+  static createFromType(type: Type, metadata:any): PipeBinding {
+    var binding = new Binding(type, {toClass: type});
+    var rb = binding.resolve();
+    return new PipeBinding(metadata.name, rb.key, rb.factory, rb.dependencies);
+  }
 }

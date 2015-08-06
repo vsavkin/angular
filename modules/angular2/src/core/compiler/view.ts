@@ -335,7 +335,8 @@ export class AppProtoView {
               public render: renderApi.RenderProtoViewRef,
               public protoChangeDetector: ProtoChangeDetector,
               public variableBindings: Map<string, string>,
-              public variableLocations: Map<string, number>, public textBindingCount: number) {
+              public variableLocations: Map<string, number>, public textBindingCount: number,
+              public protoPipes: any) {
     this.ref = new ProtoViewRef(this);
     if (isPresent(variableBindings)) {
       MapWrapper.forEach(variableBindings,

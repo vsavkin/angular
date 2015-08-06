@@ -18,14 +18,17 @@ import {DirectiveResolver} from './directive_resolver';
 import {AppProtoView, AppProtoViewMergeMapping} from './view';
 import {ProtoViewRef} from './view_ref';
 import {DirectiveBinding} from './element_injector';
+import {PipeBinding} from 'angular2/src/change_detection/pipes/pipe';
 import {ViewResolver} from './view_resolver';
 import {View} from '../annotations_impl/view';
+import {Pipe} from '../annotations_impl/annotations';
 import {ComponentUrlMapper} from './component_url_mapper';
 import {ProtoViewFactory} from './proto_view_factory';
 import {UrlResolver} from 'angular2/src/services/url_resolver';
 import {AppRootUrl} from 'angular2/src/services/app_root_url';
 import {ElementBinder} from './element_binder';
 import {wtfStartTimeRange, wtfEndTimeRange} from '../../profile/profile';
+import {reflector} from 'angular2/src/reflection/reflection';
 
 import * as renderApi from 'angular2/src/render/api';
 
@@ -57,6 +60,25 @@ export class CompilerCache {
   clear(): void {
     this._cache.clear();
     this._hostCache.clear();
+  }
+}
+
+@Injectable()
+export class PipeResolver {
+  /**
+   * Return {@link Directive} for a given `Type`.
+   */
+  resolve(type: Type): Pipe {
+    var metas = reflector.annotations(resolveForwardRef(type));
+    if (isPresent(metas)) {
+      for (var i = 0; i < metas.length; i++) {
+        var meta = metas[i];
+        if (meta instanceof Pipe) {
+          return meta;
+        }
+      }
+    }
+    throw new BaseException(`No Pipe annotation found on ${stringify(type)}`);
   }
 }
 
@@ -115,12 +137,25 @@ export class Compiler {
     if (directiveTypeOrBinding instanceof DirectiveBinding) {
       return directiveTypeOrBinding;
     } else if (directiveTypeOrBinding instanceof Binding) {
-      let annotation = this._reader.resolve(directiveTypeOrBinding.token);
-      return DirectiveBinding.createFromBinding(directiveTypeOrBinding, annotation);
+      let metadata = this._reader.resolve(directiveTypeOrBinding.token);
+      return DirectiveBinding.createFromBinding(directiveTypeOrBinding, metadata);
     } else {
-      let annotation = this._reader.resolve(directiveTypeOrBinding);
-      return DirectiveBinding.createFromType(directiveTypeOrBinding, annotation);
+      let metadata = this._reader.resolve(directiveTypeOrBinding);
+      return DirectiveBinding.createFromType(directiveTypeOrBinding, metadata);
     }
+  }
+
+  private _bindPipe(type): PipeBinding {
+    // if (directiveTypeOrBinding instanceof DirectiveBinding) {
+    //   return directiveTypeOrBinding;
+    // } else if (directiveTypeOrBinding instanceof Binding) {
+    //   let annotation = this._reader.resolve(directiveTypeOrBinding.token);
+    //   return DirectiveBinding.createFromBinding(directiveTypeOrBinding, annotation);
+    // } else {
+      var resolver = new PipeResolver();
+      let metadata = resolver.resolve(type);
+      return PipeBinding.createFromType(type, metadata);
+    // }
   }
 
   // Create a hostView as if the compiler encountered <hostcmp></hostcmp>.
@@ -185,15 +220,18 @@ export class Compiler {
       }
     }
 
-    var boundDirectives = this._removeDuplicatedDirectives(
-        ListWrapper.map(directives, (directive) => this._bindDirective(directive)));
+    var pipes = this._flattenPipes(view);
+
+    var boundDirectives = this._removeDuplicatedDirectives(directives.map(directive => this._bindDirective(directive)));
+
+    var boundPipes = pipes.map(pipe => this._bindPipe(pipe));
 
     var renderTemplate = this._buildRenderTemplate(component, view, boundDirectives);
     resultPromise =
         this._render.compile(renderTemplate)
             .then((renderPv) => {
               var protoViews = this._protoViewFactory.createAppProtoViews(
-                  componentBinding, renderPv, boundDirectives);
+                  componentBinding, renderPv, boundDirectives, boundPipes);
               return this._compileNestedProtoViews(protoViews, component, componentPath);
             })
             .then((appProtoView) => {
@@ -204,6 +242,7 @@ export class Compiler {
     this._compiling.set(component, resultPromise);
     return resultPromise;
   }
+
 
   private _removeDuplicatedDirectives(directives: List<DirectiveBinding>): List<DirectiveBinding> {
     var directivesMap: Map<number, DirectiveBinding> = new Map();
@@ -317,11 +356,19 @@ export class Compiler {
     });
   }
 
-  private _flattenDirectives(template: View): List<Type> {
-    if (isBlank(template.directives)) return [];
+  private _flattenPipes(view: View): any[] {
+    if (isBlank(view.pipes)) return [];
+
+    var pipes = [];
+    this._flattenList(view.pipes, pipes);
+    return pipes;
+  }
+
+  private _flattenDirectives(view: View): Type[] {
+    if (isBlank(view.directives)) return [];
 
     var directives = [];
-    this._flattenList(template.directives, directives);
+    this._flattenList(view.directives, directives);
 
     return directives;
   }

@@ -4,9 +4,23 @@ import {Pipe} from './pipe';
 import {Injectable, OptionalMetadata, SkipSelfMetadata, Binding, Injector, bind} from 'angular2/di';
 import {ChangeDetectorRef} from '../change_detector_ref';
 
+export class ProtoPipes {
+  constructor(public bindings: any[]) {}
+}
+
+export class Pipes {
+  constructor(public proto: ProtoPipes, public injector: Injector) {}
+
+  get(type: string, cdRef: ChangeDetectorRef): Pipe {
+    if (isBlank(this.proto.bindings)) return null;
+    var b = this.proto.bindings.filter(b => b.name === type)[0];
+    return this.injector.resolveAndCreateChild([bind(ChangeDetectorRef).toValue(cdRef)]).instantiateResolved(b);
+  }
+}
+
 @Injectable()
 @CONST()
-export class Pipes {
+export class Pipes2 {
   /**
    * Map of {@link Pipe} names to {@link Pipe} implementations.
    *

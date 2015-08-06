@@ -58,12 +58,11 @@ import {
 import {
   Pipes,
   defaultPipes,
-  Pipe,
   ChangeDetectorRef,
   ON_PUSH
 } from 'angular2/src/change_detection/change_detection';
 
-import {Directive, Component, View, Attribute, Query} from 'angular2/annotations';
+import {Directive, Component, Pipe, View, Attribute, Query} from 'angular2/annotations';
 import * as viewAnn from 'angular2/src/core/annotations_impl/view';
 
 import {QueryList} from 'angular2/src/core/compiler/query_list';
@@ -239,12 +238,13 @@ export function main() {
          }));
 
       describe('pipes', () => {
-        it("should support pipes in bindings",
+        iit("should support pipes in bindings",
            inject([TestComponentBuilder, AsyncTestCompleter],
                   (tcb: TestComponentBuilder, async) => {
                     tcb.overrideView(MyCompWithPipes, new viewAnn.View({
                          template: '<div my-dir #dir="mydir" [elprop]="ctxProp | double"></div>',
-                         directives: [MyDir]
+                         directives: [MyDir],
+                         pipes: [DoublePipe]
                        }))
 
                         .createAsync(MyCompWithPipes)
@@ -1661,16 +1661,12 @@ class PushCmpWithAsyncPipe {
   resolve(value) { this.completer.resolve(value); }
 }
 
-@Injectable()
-class PipesWithDouble extends Pipes {
-  constructor(injector: Injector) { super({"double": DoublePipe}, injector); }
-}
-
 @Component({
   selector: 'my-comp-with-pipes',
-  viewBindings: [new Binding(Pipes, {toClass: PipesWithDouble})]
 })
-@View({directives: []})
+@View({
+  pipes: [DoublePipe]
+})
 @Injectable()
 class MyCompWithPipes {
   ctxProp: string = "initial value";
@@ -1754,8 +1750,9 @@ class SomeViewport {
   }
 }
 
+@Pipe({name:'double'})
 @Injectable()
-class DoublePipe implements Pipe {
+class DoublePipe {
   onDestroy() {}
   transform(value, args = null) { return `${value}${value}`; }
 }

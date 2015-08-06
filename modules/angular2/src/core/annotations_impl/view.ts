@@ -87,6 +87,8 @@ export class View {
   // for an unused import.
   directives: List<Type | any | List<any>>;
 
+  pipes: any[];
+
   /**
    * Specify how the template and the styles should be encapsulated.
    * The default is {@link ViewEncapsulation#EMULATED `ViewEncapsulation.EMULATED`} if the view
@@ -95,13 +97,14 @@ export class View {
    */
   encapsulation: ViewEncapsulation;
 
-  constructor({templateUrl, template, directives, encapsulation, styles, styleUrls}: {
+  constructor({templateUrl, template, directives, encapsulation, styles, styleUrls, pipes}: {
     templateUrl?: string,
     template?: string,
     directives?: List<Type | any | List<any>>,
     encapsulation?: ViewEncapsulation,
     styles?: List<string>,
     styleUrls?: List<string>,
+    pipes?: any[]
   } = {}) {
     this.templateUrl = templateUrl;
     this.template = template;
@@ -109,5 +112,6 @@ export class View {
     this.styles = styles;
     this.directives = directives;
     this.encapsulation = encapsulation;
+    this.pipes = pipes;
   }
 }

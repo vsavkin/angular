@@ -1030,3 +1030,13 @@ export enum LifecycleEvent {
    */
   onAllChangesDone
 }
+
+@CONST()
+export class Pipe extends InjectableMetadata {
+  name: string;
+
+  constructor({name}:{name:string}) {
+    super();
+    this.name = name;
+  }
+}

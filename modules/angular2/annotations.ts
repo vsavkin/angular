@@ -36,6 +36,7 @@ export {
   ComponentDecorator,
   ComponentFactory,
   Directive,
+  Pipe,
   DirectiveDecorator,
   DirectiveFactory,
   View,
