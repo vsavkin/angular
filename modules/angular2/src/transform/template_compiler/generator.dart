@@ -35,7 +35,7 @@ import 'view_definition_creator.dart';
 /// This method assumes a {@link DomAdapter} has been registered.
 Future<String> processTemplates(AssetReader reader, AssetId entryPoint,
     {bool generateRegistrations: true,
-    bool generateChangeDetectors: true}) async {
+    bool generateChangeDetectors: true, bool reflectPropertiesAsAttributes: false}) async {
   var viewDefResults = await createViewDefinitions(reader, entryPoint);
   // Note: TemplateCloner(-1) never serializes Nodes into strings.
   // we might want to change this to TemplateCloner(0) to force the serialization
@@ -58,7 +58,7 @@ Future<String> processTemplates(AssetReader reader, AssetId entryPoint,
       var saved = reflector.reflectionCapabilities;
       reflector.reflectionCapabilities = const NullReflectionCapabilities();
       var defs = getChangeDetectorDefinitions(viewDefEntry.hostMetadata,
-          protoView, viewDefEntry.viewDef.directives);
+          protoView, viewDefEntry.viewDef.directives, reflectPropertiesAsAttributes);
       for (var i = 0; i < defs.length; ++i) {
         changeDetectorClasses.generate('${rType.typeName}',
             '_${rType.typeName}_ChangeDetector$i', defs[i]);

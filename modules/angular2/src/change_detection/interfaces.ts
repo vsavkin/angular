@@ -72,6 +72,10 @@ export interface ChangeDetector {
 
 export interface ProtoChangeDetector { instantiate(dispatcher: ChangeDispatcher): ChangeDetector; }
 
+export class ChangeDetectorMode {
+  constructor(public devMode: boolean, public notifyDispatcherOnAllChanges:boolean) {}
+}
+
 export class ChangeDetectorDefinition {
   constructor(public id: string, public strategy: string, public variableNames: List<string>,
               public bindingRecords: BindingRecord[], public eventRecords: BindingRecord[],
