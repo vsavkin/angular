@@ -411,7 +411,7 @@ class _CodegenState {
     var oldValue = _names.getFieldName(r.selfIndex);
 
     var br = r.bindingRecord;
-    var notifyDebug = this._devMode ? "super.notifyDispatcherDebug(${newValue});" : "";
+    var notifyDebug = this._devMode ? "this.notifyDispatcherDebug(${newValue});" : "";
 
     if (br.target.isDirective()) {
       var directiveProperty =
@@ -425,7 +425,7 @@ class _CodegenState {
     } else {
       return '''
       ${_genThrowOnChangeCheck(oldValue, newValue)}
-      super.notifyDispatcher(${newValue});
+      this.notifyDispatcher(${newValue});
       ${notifyDebug}
     ''';
     }

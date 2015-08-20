@@ -311,7 +311,7 @@ export class ChangeDetectorJITGenerator {
     var oldValue = this._names.getFieldName(r.selfIndex);
 
     var br = r.bindingRecord;
-    var notifyDebug = this.devMode ? `super.notifyDispatcherDebug(${newValue});` : "";
+    var notifyDebug = this.devMode ? `this.notifyDispatcherDebug(${newValue});` : "";
 
     if (br.target.isDirective()) {
       var directiveProperty =
@@ -325,7 +325,7 @@ export class ChangeDetectorJITGenerator {
     } else {
       return `
         ${this._genThrowOnChangeCheck(oldValue, newValue)}
-        super.notifyDispatcher(${newValue});
+        this.notifyDispatcher(${newValue});
         ${notifyDebug}
       `;
     }

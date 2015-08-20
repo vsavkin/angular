@@ -166,10 +166,10 @@ export class DomRenderer extends Renderer {
     var view = resolveInternalDomView(location.renderView);
     view.setElementProperty(location.renderBoundElementIndex, propertyName, propertyValue);
     // Reflect the property value as an attribute value with ng-reflect- prefix.
-    if (this._reflectPropertiesAsAttributes) {
-      this.setElementAttribute(location, `${REFLECT_PREFIX}${camelCaseToDashCase(propertyName)}`,
-                               `${propertyValue}`);
-    }
+    // if (this._reflectPropertiesAsAttributes) {
+    //   this.setElementAttribute(location, `${REFLECT_PREFIX}${camelCaseToDashCase(propertyName)}`,
+    //                            `${propertyValue}`);
+    // }
   }
 
   setElementAttribute(location: RenderElementRef, attributeName: string, attributeValue: string):

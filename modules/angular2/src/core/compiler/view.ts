@@ -194,6 +194,10 @@ export class AppView implements ChangeDispatcher, RenderEventDispatcher {
   }
 
   notifyOnBindingDebug(b: BindingTarget, currentValue: any): void {
+     if (b.isElementProperty() || b.isDirective()) {
+        // var elementRef = this.elementRefs[this.elementOffset + b.elementIndex];
+        // this.renderer.setElementAttribute(elementRef, b.name, currentValue);
+     }
   }
 
   notifyOnAllChangesDone(): void {
