@@ -411,18 +411,22 @@ class _CodegenState {
     var oldValue = _names.getFieldName(r.selfIndex);
 
     var br = r.bindingRecord;
+    var notifyDebug = this._devMode ? "super.notifyDispatcherDebug(${newValue});" : "";
+
     if (br.target.isDirective()) {
       var directiveProperty =
           '${_names.getDirectiveName(br.directiveRecord.directiveIndex)}.${br.target.name}';
       return '''
       ${_genThrowOnChangeCheck(oldValue, newValue)}
       $directiveProperty = $newValue;
+      ${notifyDebug}
       $_IS_CHANGED_LOCAL = true;
     ''';
     } else {
       return '''
       ${_genThrowOnChangeCheck(oldValue, newValue)}
-      this.notifyDispatcher(${newValue});
+      super.notifyDispatcher(${newValue});
+      ${notifyDebug}
     ''';
     }
   }

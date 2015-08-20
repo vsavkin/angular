@@ -106,10 +106,14 @@ export function getDefinition(id: string): TestDefinition {
 
   } else if (id == "onPushObserve") {
     var records = _createBindingRecords("a");
-    let cdDef = new ChangeDetectorDefinition(id, "ON_PUSH_OBSERVE", [], records, [], [], false);
+    let cdDef = new ChangeDetectorDefinition(id, "ON_PUSH_OBSERVE", [], records, [], [], true);
+    testDef = new TestDefinition(id, cdDef, null);
+
+  } else if (id == "updateElementProduction") {
+    var records = _createBindingRecords("name");
+    let cdDef = new ChangeDetectorDefinition(id, null, [], records, [], [], false);
     testDef = new TestDefinition(id, cdDef, null);
   }
-
 
   if (isBlank(testDef)) {
     throw `No ChangeDetectorDefinition for ${id} available. Please modify this file if necessary.`;
@@ -136,7 +140,7 @@ export function getAllDefinitions(): List<TestDefinition> {
       ListWrapper.concat(allDefs, StringMapWrapper.keys(_DirectiveUpdating.availableDefinitions));
   allDefs = ListWrapper.concat(allDefs, _availableEventDefinitions);
   allDefs = ListWrapper.concat(allDefs, _availableHostEventDefinitions);
-  allDefs = ListWrapper.concat(allDefs, ["onPushObserve"]);
+  allDefs = ListWrapper.concat(allDefs, ["onPushObserve", "updateElementProduction"]);
   return ListWrapper.map(allDefs, (id) => getDefinition(id));
 }
 
@@ -172,6 +176,8 @@ class _ExpressionWithLocals {
         'city', new Locals(null, MapWrapper.createFromPairs([['city', 'MTV']])))
   };
 }
+
+
 
 class _ExpressionWithMode {
   constructor(private _strategy: string, private _withRecords: boolean,

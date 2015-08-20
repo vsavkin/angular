@@ -47,6 +47,7 @@ export class DebugContext {
 export interface ChangeDispatcher {
   getDebugContext(elementIndex: number, directiveIndex: DirectiveIndex): DebugContext;
   notifyOnBinding(bindingTarget: BindingTarget, value: any): void;
+  notifyOnBindingDebug(bindingTarget: BindingTarget, value: any): void;
   notifyOnAllChangesDone(): void;
 }
 

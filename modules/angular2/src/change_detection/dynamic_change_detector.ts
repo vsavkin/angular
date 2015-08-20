@@ -26,7 +26,7 @@ export class DynamicChangeDetector extends AbstractChangeDetector<any> {
   constructor(id: string, dispatcher: any, numberOfPropertyProtoRecords: number,
               propertyBindingTargets: BindingTarget[], directiveIndices: DirectiveIndex[],
               modeOnHydrate: string, private records: ProtoRecord[],
-              private eventBindings: EventBinding[], private directiveRecords: DirectiveRecord[]) {
+              private eventBindings: EventBinding[], private directiveRecords: DirectiveRecord[], private devMode: boolean) {
     super(id, dispatcher, numberOfPropertyProtoRecords, propertyBindingTargets, directiveIndices,
           modeOnHydrate);
     var len = records.length + 1;
@@ -177,7 +177,10 @@ export class DynamicChangeDetector extends AbstractChangeDetector<any> {
       var directiveIndex = bindingRecord.directiveRecord.directiveIndex;
       bindingRecord.setter(this._getDirectiveFor(directiveIndex), change.currentValue);
     }
-    // if(isDevMode) super.notifyDispatcherDebug(change.currentValue);
+    
+    if (this.devMode) {
+       super.notifyDispatcherDebug(change.currentValue);
+    }
   }
 
   _addChange(bindingRecord: BindingRecord, change, changes) {

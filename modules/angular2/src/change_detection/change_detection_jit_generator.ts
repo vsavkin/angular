@@ -311,18 +311,22 @@ export class ChangeDetectorJITGenerator {
     var oldValue = this._names.getFieldName(r.selfIndex);
 
     var br = r.bindingRecord;
+    var notifyDebug = this.devMode ? `super.notifyDispatcherDebug(${newValue});` : "";
+
     if (br.target.isDirective()) {
       var directiveProperty =
           `${this._names.getDirectiveName(br.directiveRecord.directiveIndex)}.${br.target.name}`;
       return `
         ${this._genThrowOnChangeCheck(oldValue, newValue)}
         ${directiveProperty} = ${newValue};
+        ${notifyDebug}
         ${IS_CHANGED_LOCAL} = true;
       `;
     } else {
       return `
         ${this._genThrowOnChangeCheck(oldValue, newValue)}
-        this.notifyDispatcher(${newValue});
+        super.notifyDispatcher(${newValue});
+        ${notifyDebug}
       `;
     }
   }

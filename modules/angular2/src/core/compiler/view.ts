@@ -193,6 +193,9 @@ export class AppView implements ChangeDispatcher, RenderEventDispatcher {
     }
   }
 
+  notifyOnBindingDebug(b: BindingTarget, currentValue: any): void {
+  }
+
   notifyOnAllChangesDone(): void {
     var eiCount = this.proto.elementBinders.length;
     var ei = this.elementInjectors;

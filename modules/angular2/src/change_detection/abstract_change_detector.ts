@@ -207,6 +207,10 @@ export class AbstractChangeDetector<T> implements ChangeDetector {
     this.dispatcher.notifyOnBinding(this._currentBinding(), value);
   }
 
+  protected notifyDispatcherDebug(value: any): void {
+    this.dispatcher.notifyOnBindingDebug(this._currentBinding(), value);
+  }
+
   protected addChange(changes: StringMap<string, any>, oldValue: any,
                       newValue: any): StringMap<string, any> {
     if (isBlank(changes)) {
