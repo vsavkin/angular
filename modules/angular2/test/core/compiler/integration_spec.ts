@@ -64,7 +64,7 @@ import {
   ChangeDetectorGenConfig
 } from 'angular2/src/core/change_detection/change_detection';
 
-import {Directive, Component, View, ViewMetadata, Attribute, Query, Pipe} from 'angular2/metadata';
+import {Directive, Component, View, ViewMetadata, Attribute, Query, Pipe, Prop} from 'angular2/metadata';
 
 import {QueryList} from 'angular2/src/core/compiler/query_list';
 
@@ -89,6 +89,20 @@ export function main() {
     beforeEachBindings(() => [bind(ANCHOR_ELEMENT).toValue(el('<div></div>'))]);
 
     describe('react to record changes', function() {
+      iit('experiment',
+         inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
+           tcb.overrideView(MyComp, new ViewMetadata({template: '<with-decorators field="aaa", el-prop="bbb"></with-decorators>', directives: [DirectiveWithFieldDecorators]}))
+               .createAsync(MyComp)
+               .then((rootTC) => {
+                 rootTC.detectChanges();
+                 var dir = rootTC.componentViewChildren[0].inject(DirectiveWithFieldDecorators);
+                 expect(dir.field).toEqual("aaa");
+                 expect(dir.dirField).toEqual("bbb");
+                 async.done();
+               });
+         }));
+
+
       it('should consume text node changes',
          inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
            tcb.overrideView(MyComp, new ViewMetadata({template: '<div>{{ctxProp}}</div>'}))
@@ -1642,6 +1656,13 @@ class MyDir {
 @Directive({selector: '[title]', properties: ['title']})
 class DirectiveWithTitle {
   title: string;
+}
+
+
+@Directive({selector: 'with-decorators'})
+class DirectiveWithFieldDecorators {
+  @Prop() field: string;
+  @Prop("el-prop") dirField: string;
 }
 
 @Directive({selector: '[title]', properties: ['title'], host: {'[title]': 'title'}})

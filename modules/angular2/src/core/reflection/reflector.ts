@@ -112,6 +112,10 @@ export class Reflector {
     }
   }
 
+  fieldMetadata(typeOrFunc: /*Type*/ any):StringMap<string, any[]> {
+    return this.reflectionCapabilities.fieldMetadata(typeOrFunc);
+  }
+
   interfaces(type: Type): any[] {
     if (this._injectableInfo.has(type)) {
       var res = this._getReflectionInfo(type)._interfaces;

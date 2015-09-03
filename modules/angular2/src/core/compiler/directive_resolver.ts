@@ -1,6 +1,7 @@
 import {resolveForwardRef, Injectable} from 'angular2/di';
 import {Type, isPresent, BaseException, stringify} from 'angular2/src/core/facade/lang';
-import {DirectiveMetadata} from 'angular2/metadata';
+import {StringMapWrapper} from 'angular2/src/core/facade/collection';
+import {DirectiveMetadata, ComponentMetadata, PropMetadata} from 'angular2/metadata';
 import {reflector} from 'angular2/src/core/reflection/reflection';
 
 /**
@@ -21,7 +22,27 @@ export class DirectiveResolver {
       for (var i = 0; i < annotations.length; i++) {
         var annotation = annotations[i];
         if (annotation instanceof DirectiveMetadata) {
-          return annotation;
+          var fieldMetadata = reflector.fieldMetadata(resolveForwardRef(type));
+          if (isPresent(fieldMetadata)) {
+            var properties = [];
+            StringMapWrapper.forEach(fieldMetadata, (arr, fieldName) => {
+              arr.forEach(a => {
+                if (a instanceof PropMetadata) {
+                  if (a.name) {
+                    properties.push(`${fieldName}: ${a.name}`);
+                  } else {
+                    properties.push(fieldName);
+                  }
+                }
+              });
+            });
+            return new DirectiveMetadata({
+              selector: annotation.selector,
+              properties: properties
+            });
+          } else {
+            return annotation;
+          }
         }
       }
     }

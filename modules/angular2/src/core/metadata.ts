@@ -35,7 +35,7 @@ import {
 import {ViewMetadata, ViewEncapsulation} from './metadata/view';
 import {ChangeDetectionStrategy} from 'angular2/src/core/change_detection/change_detection';
 
-import {makeDecorator, makeParamDecorator, TypeDecorator, Class} from './util/decorators';
+import {makeDecorator, makeParamDecorator, makeFieldDecorator, TypeDecorator, Class} from './util/decorators';
 import {Type} from 'angular2/src/core/facade/lang';
 
 /**
@@ -433,3 +433,9 @@ export var ViewQuery: QueryFactory = makeParamDecorator(ViewQueryMetadata);
  * {@link PipeMetadata} factory function.
  */
 export var Pipe: PipeFactory = <PipeFactory>makeDecorator(PipeMetadata);
+
+export class PropMetadata {
+  constructor(public name: string){}
+}
+
+export var Prop = makeFieldDecorator(PropMetadata);

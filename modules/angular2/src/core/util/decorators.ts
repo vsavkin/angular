@@ -290,3 +290,35 @@ export function makeParamDecorator(annotationCls): any {
   ParamDecoratorFactory.prototype = Object.create(annotationCls.prototype);
   return ParamDecoratorFactory;
 }
+
+export function makeFieldDecorator(metaCls:any): any {
+  return function FieldDecoratorFactory(...args) {
+    var annotationInstance = Object.create(metaCls.prototype);
+    metaCls.apply(annotationInstance, args);
+
+    return function FieldDecorator(target: any, name: string) {
+      var meta = Reflect.getOwnMetadata('fieldMetadata', target.constructor);
+      meta = meta || {};
+      meta[name] = meta[name] || [];
+      meta[name].push(annotationInstance);
+      Reflect.defineMetadata('fieldMetadata', meta, target.constructor);
+    }
+  }
+}
+
+
+// function Prop(elName?:string) {
+//   console.log("name", elName)
+//   return function(a,b) {
+//     console.log("target", a);
+//     console.log("key", b);
+//   }
+// }
+
+// function Event(elName?:string) {
+//   console.log("name", elName)
+//   return function(a,b) {
+//     console.log("target", a);
+//     console.log("key", b);
+//   }
+// }

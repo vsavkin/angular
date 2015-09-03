@@ -7,6 +7,7 @@ export interface PlatformReflectionCapabilities {
   interfaces(type: Type): any[];
   parameters(type: Type): any[][];
   annotations(type: Type): any[];
+  fieldDecorators(type: Type): StringMap<string, any[]>;
   getter(name: string): GetterFn;
   setter(name: string): SetterFn;
   method(name: string): MethodFn;

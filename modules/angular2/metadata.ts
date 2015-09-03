@@ -34,7 +34,9 @@ export {
   QueryFactory,
   ViewQuery,
   Pipe,
-  PipeFactory
+  PipeFactory,
+  PropMetadata,
+  Prop
 } from './src/core/metadata';
 
 export {

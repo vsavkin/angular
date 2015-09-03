@@ -140,6 +140,14 @@ export class ReflectionCapabilities implements PlatformReflectionCapabilities {
     return [];
   }
 
+  fieldMetadata(typeOfFunc: Type): any {
+    if (isPresent(this._reflect) && isPresent(this._reflect.getMetadata)) {
+      return this._reflect.getMetadata('fieldMetadata', typeOfFunc);
+    }
+    return {};
+  }
+
+
   interfaces(type: Type): any[] {
     throw new BaseException("JavaScript does not support interfaces");
   }
