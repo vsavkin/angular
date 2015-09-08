@@ -2,6 +2,7 @@ import {ListWrapper} from 'angular2/src/core/facade/collection';
 import {stringify, BaseException, isBlank} from 'angular2/src/core/facade/lang';
 import {Key} from './key';
 import {Injector} from './injector';
+import {ExceptionHandler} from '../exception_handler';
 
 function findFirstClosedCycle(keys: any[]): any[] {
   var res = [];
@@ -32,7 +33,7 @@ function constructResolvingPath(keys: any[]): string {
  */
 export class AbstractBindingError extends BaseException {
   name: string;
-  message: string;
+  message2: string;
   keys: Key[];
   injectors: Injector[];
   constructResolvingMessage: Function;
@@ -43,18 +44,21 @@ export class AbstractBindingError extends BaseException {
     this.keys = [key];
     this.injectors = [injector];
     this.constructResolvingMessage = constructResolvingMessage;
-    this.message = this.constructResolvingMessage(this.keys);
+    this.message2 = this.constructResolvingMessage(this.keys);
   }
 
   addKey(injector: Injector, key: Key): void {
     this.injectors.push(injector);
     this.keys.push(key);
-    this.message = this.constructResolvingMessage(this.keys);
+    this.message2 = this.constructResolvingMessage(this.keys);
   }
+
+  get message() { return "SFSDF"; }
 
   get context() { return this.injectors[this.injectors.length - 1].debugContext(); }
 
-  toString(): string { return this.message; }
+  // toString(): string { return "lalal" }
+  // toString(): string { return ExceptionHandler.exceptionToString(this); }
 }
 
 /**

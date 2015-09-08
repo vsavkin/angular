@@ -47,7 +47,7 @@ export class ExceptionHandler {
     var originalStack = this._findOriginalStack(exception);
     var context = this._findContext(exception);
 
-    this._logger.logGroup(`EXCEPTION: ${exception}`);
+    this._logger.logGroup(`EXCEPTION: ${this._extractMessage(exception)}`);
 
     if (isPresent(stackTrace) && isBlank(originalStack)) {
       this._logger.logError("STACKTRACE:");
@@ -59,7 +59,7 @@ export class ExceptionHandler {
     }
 
     if (isPresent(originalException)) {
-      this._logger.logError(`ORIGINAL EXCEPTION: ${originalException}`);
+      this._logger.logError(`ORIGINAL EXCEPTION: ${this._extractMessage(originalException)}`);
     }
 
     if (isPresent(originalStack)) {
@@ -77,6 +77,10 @@ export class ExceptionHandler {
     // We rethrow exceptions, so operations like 'bootstrap' will result in an error
     // when an exception happens. If we do not rethrow, bootstrap will always succeed.
     if (this._rethrowException) throw exception;
+  }
+
+  _extractMessage(exception: any):string {
+    return exception instanceof BaseException ? exception.message : exception.toString();
   }
 
   _longStackTrace(stackTrace: any): any {

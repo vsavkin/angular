@@ -34,11 +34,12 @@ export function getTypeNameForDebugging(type: Type): string {
 }
 
 export class BaseException extends Error {
-  stack;
+  // stack;
   constructor(public message?: string, private _originalException?, private _originalStack?,
               private _context?) {
-    super(message);
-    this.stack = (<any>new Error(message)).stack;
+    super("boom");
+
+    // this.stack = (<any>new Error(message)).stack;
   }
 
   get originalException(): any { return this._originalException; }
@@ -47,7 +48,7 @@ export class BaseException extends Error {
 
   get context(): any { return this._context; }
 
-  toString(): string { return this.message; }
+  toString(): string { return "fixed"; }
 }
 
 export function makeTypeError(message?: string): Error {

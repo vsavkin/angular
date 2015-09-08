@@ -635,6 +635,11 @@ export function main() {
         expect(binding.resolvedFactories[0].dependencies[0].properties)
             .toEqual([new CustomDependencyMetadata()]);
       });
+
+      iit('experiment', () => {
+        var injector = Injector.resolveAndCreate([Car, bind(Engine).toClass(BrokenEngine)]);
+        injector.get(Car);
+      });
     });
 
     describe("displayName", () => {
