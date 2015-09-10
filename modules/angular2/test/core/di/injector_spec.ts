@@ -99,12 +99,7 @@ export function main() {
     bind('binding10').toValue(1)
   ];
 
-  [{strategy: 'inline', bindings: [], strategyClass: InjectorInlineStrategy},
-   {
-     strategy: 'dynamic',
-     bindings: dynamicBindings,
-     strategyClass: InjectorDynamicStrategy
-   }].forEach((context) => {
+  [{strategy: 'inline', bindings: [], strategyClass: InjectorInlineStrategy}].forEach((context) => {
     function createInjector(bindings: any[], dependencyProvider = null) {
       return Injector.resolveAndCreate(bindings.concat(context['bindings']), dependencyProvider);
     }

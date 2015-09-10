@@ -1,5 +1,7 @@
 /// <reference path="../../../manual_typings/globals.d.ts" />
 
+import {ExceptionHandler} from 'angular2/src/core/exception_handler';
+
 // TODO(jteplitz602): Load WorkerGlobalScope from lib.webworker.d.ts file #3492
 declare var WorkerGlobalScope;
 var globalScope: BrowserNodeGlobal;
@@ -34,21 +36,31 @@ export function getTypeNameForDebugging(type: Type): string {
 }
 
 export class BaseException extends Error {
-  // stack;
-  constructor(public message?: string, private _originalException?, private _originalStack?,
-              private _context?) {
-    super("boom");
-
-    // this.stack = (<any>new Error(message)).stack;
+  constructor(public message?: string) {
+    super(message);
+    this.stack = (<any>new Error(message)).stack;
   }
+}
+
+export class WrapperException extends Error {
+  private _wrapperStack;
+  constructor(private _wrapperMessage?: string, private _originalException?, private _originalStack?,
+              private _context?) {
+    super(_wrapperMessage);
+    this._wrapperStack = (<any>new Error(_wrapperMessage)).stack;
+  }
+
+  get wrapperMessage():string { return this._wrapperMessage; }
+
+  get wrapperStack():any { return this._wrapperStack; }
+
 
   get originalException(): any { return this._originalException; }
 
   get originalStack(): any { return this._originalStack; }
+  
 
   get context(): any { return this._context; }
-
-  toString(): string { return "fixed"; }
 }
 
 export function makeTypeError(message?: string): Error {

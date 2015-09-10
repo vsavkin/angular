@@ -1,5 +1,5 @@
 import {ListWrapper} from 'angular2/src/core/facade/collection';
-import {stringify, BaseException, isBlank} from 'angular2/src/core/facade/lang';
+import {stringify, BaseException, WrapperException, isBlank} from 'angular2/src/core/facade/lang';
 import {Key} from './key';
 import {Injector} from './injector';
 import {ExceptionHandler} from '../exception_handler';
@@ -31,9 +31,9 @@ function constructResolvingPath(keys: any[]): string {
 /**
  * Base class for all errors arising from misconfigured bindings.
  */
-export class AbstractBindingError extends BaseException {
+export class AbstractBindingError extends WrapperException {
   name: string;
-  message2: string;
+  wrapperMessage: string;
   keys: Key[];
   injectors: Injector[];
   constructResolvingMessage: Function;
@@ -44,21 +44,25 @@ export class AbstractBindingError extends BaseException {
     this.keys = [key];
     this.injectors = [injector];
     this.constructResolvingMessage = constructResolvingMessage;
-    this.message2 = this.constructResolvingMessage(this.keys);
+    this.wrapperMessage = this.constructResolvingMessage(this.keys);
   }
 
   addKey(injector: Injector, key: Key): void {
     this.injectors.push(injector);
     this.keys.push(key);
-    this.message2 = this.constructResolvingMessage(this.keys);
+    this.wrapperMessage = this.constructResolvingMessage(this.keys);
   }
-
-  get message() { return "SFSDF"; }
 
   get context() { return this.injectors[this.injectors.length - 1].debugContext(); }
 
+  get message() {
+    return ExceptionHandler.exceptionToString(this);
+  }
   // toString(): string { return "lalal" }
-  // toString(): string { return ExceptionHandler.exceptionToString(this); }
+  // toString(): string {
+  //   return ExceptionHandler.exceptionToString(this);
+  // }
+  // toString(): string { return "boo" }
 }
 
 /**
