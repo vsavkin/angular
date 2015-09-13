@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "sourceMap": true,
+    "experimentalDecorators": true
+  },
+  "files": [
+    "webpackapp.ts",
+    "tsd_typings/tsd.d.ts"
+  ]
+}
