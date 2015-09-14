@@ -13,7 +13,8 @@ module.exports = {
   ],
   output: {
     filename: "webpackapp/angular2/angular2.js",
-		libraryTarget: 'commonjs'
+		libraryTarget: 'var',
+    library: 'angular2'
   },
   loaders: []
 }
