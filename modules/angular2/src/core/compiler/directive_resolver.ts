@@ -31,7 +31,8 @@ export class DirectiveResolver {
         var metadata = typeMetadata[i];
         if (metadata instanceof DirectiveMetadata) {
           var propertyMetadata = reflector.propMetadata(type);
-          return this._mergeWithPropertyMetadata(metadata, propertyMetadata);
+          var res = this._mergeWithPropertyMetadata(metadata, propertyMetadata);
+          return res;
         }
       }
     }
@@ -88,7 +89,8 @@ export class DirectiveResolver {
     var mergedHost = isPresent(dm.host) ? StringMapWrapper.merge(dm.host, host) : host;
 
     if (dm instanceof ComponentMetadata) {
-      return new ComponentMetadata({
+
+      var res = new ComponentMetadata({
         selector: dm.selector,
         properties: mergedProperties,
         events: mergedEvents,
@@ -97,8 +99,10 @@ export class DirectiveResolver {
         exportAs: dm.exportAs,
         compileChildren: dm.compileChildren,
         changeDetection: dm.changeDetection,
-        viewBindings: dm.viewBindings
+        viewBindings: dm.viewBindings,
+        children: dm.children
       });
+      return res;
 
     } else {
       return new DirectiveMetadata({
@@ -108,7 +112,8 @@ export class DirectiveResolver {
         host: mergedHost,
         bindings: dm.bindings,
         exportAs: dm.exportAs,
-        compileChildren: dm.compileChildren
+        compileChildren: dm.compileChildren,
+        children: dm.children
       });
     }
   }

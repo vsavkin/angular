@@ -139,11 +139,11 @@ export interface ViewDecorator extends TypeDecorator {
 export interface DirectiveFactory {
   (obj: {
     selector?: string, properties?: string[], events?: string[], host?: StringMap<string, string>,
-        bindings?: any[], exportAs?: string, compileChildren?: boolean;
+        bindings?: any[], exportAs?: string, compileChildren?: boolean, children:any;
   }): DirectiveDecorator;
   new (obj: {
     selector?: string, properties?: string[], events?: string[], host?: StringMap<string, string>,
-        bindings?: any[], exportAs?: string, compileChildren?: boolean;
+        bindings?: any[], exportAs?: string, compileChildren?: boolean, children:any;
   }): DirectiveMetadata;
 }
 
@@ -201,6 +201,7 @@ export interface ComponentFactory {
     compileChildren?: boolean,
     viewBindings?: any[],
     changeDetection?: ChangeDetectionStrategy,
+    children:any
   }): ComponentDecorator;
   new (obj: {
     selector?: string,
@@ -212,6 +213,7 @@ export interface ComponentFactory {
     compileChildren?: boolean,
     viewBindings?: any[],
     changeDetection?: ChangeDetectionStrategy,
+    children:any
   }): ComponentMetadata;
 }
 
@@ -537,3 +539,10 @@ export var HostBinding: HostBindingFactory = makePropDecorator(HostBindingMetada
  * {@link HostListenerMetadata} factory function.
  */
 export var HostListener: HostListenerFactory = makePropDecorator(HostListenerMetadata);
+
+
+export class ChildrenMetadata {
+  constructor(public selector: any){}
+}
+
+export var Children: any = makePropDecorator(ChildrenMetadata);

@@ -144,6 +144,7 @@ export class RenderDirectiveMetadata {
   selector: string;
   compileChildren: boolean;
   events: string[];
+  children: StringMap<string, any>;
   properties: string[];
   readAttributes: string[];
   type: number;
@@ -167,7 +168,7 @@ export class RenderDirectiveMetadata {
   constructor({id, selector, compileChildren, events, hostListeners, hostProperties, hostAttributes,
                properties, readAttributes, type, callOnDestroy, callOnChanges, callDoCheck,
                callOnInit, callAfterContentInit, callAfterContentChecked, callAfterViewInit,
-               callAfterViewChecked, changeDetection, exportAs}: {
+               callAfterViewChecked, changeDetection, exportAs, children}: {
     id?: string,
     selector?: string,
     compileChildren?: boolean,
@@ -187,7 +188,8 @@ export class RenderDirectiveMetadata {
     callAfterViewInit?: boolean,
     callAfterViewChecked?: boolean,
     changeDetection?: ChangeDetectionStrategy,
-    exportAs?: string
+    exportAs?: string,
+    children: any
   }) {
     this.id = id;
     this.selector = selector;
@@ -209,12 +211,13 @@ export class RenderDirectiveMetadata {
     this.callAfterViewChecked = callAfterViewChecked;
     this.changeDetection = changeDetection;
     this.exportAs = exportAs;
+    this.children = children;
   }
 
   static create({id, selector, compileChildren, events, host, properties, readAttributes, type,
                  callOnDestroy, callOnChanges, callDoCheck, callOnInit, callAfterContentInit,
                  callAfterContentChecked, callAfterViewInit, callAfterViewChecked, changeDetection,
-                 exportAs}: {
+                 exportAs, children}: {
     id?: string,
     selector?: string,
     compileChildren?: boolean,
@@ -232,7 +235,8 @@ export class RenderDirectiveMetadata {
     callAfterViewInit?: boolean,
     callAfterViewChecked?: boolean,
     changeDetection?: ChangeDetectionStrategy,
-    exportAs?: string
+    exportAs?: string,
+    children?: any
   }): RenderDirectiveMetadata {
     let hostListeners = new Map();
     let hostProperties = new Map();
@@ -271,7 +275,8 @@ export class RenderDirectiveMetadata {
       callAfterViewInit: callAfterViewInit,
       callAfterViewChecked: callAfterViewChecked,
       changeDetection: changeDetection,
-      exportAs: exportAs
+      exportAs: exportAs,
+      children: children
     });
   }
 }

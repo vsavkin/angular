@@ -23,6 +23,7 @@ import {
   TemplateRef,
   Query,
   QueryList,
+  Children,
   View,
   ViewQuery
 } from 'angular2/core';
@@ -541,15 +542,55 @@ export function main() {
                  async.done();
                });
          }));
-    });
+
+      iit('experiment with field query',
+         inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
+           var template =
+               '<needs-query-field #q><div text="foo"></div></needs-query-field>';
+
+
+           tcb.overrideTemplate(MyComp, template)
+               .createAsync(MyComp)
+               .then((view) => {
+                 view.detectChanges();
+
+                 var q = view.debugElement.componentViewChildren[0].getLocal('q');
+
+                 view.detectChanges();
+
+                 console.log("numbers", q.textDirs, q.savedTextDirs);
+                 expect(q.textDirs.length).toEqual(1);
+                 expect(q.savedTextDirs.length).toEqual(1);
+
+                 async.done();
+               });
+         }));
+      });
   });
 }
+
 
 @Directive({selector: '[text]', properties: ['text'], exportAs: 'textDir'})
 @Injectable()
 class TextDirective {
   text: string;
   constructor() {}
+}
+
+@Component({
+  selector: 'needs-query-field',
+  children: {
+    'textDirs': new Children(TextDirective),
+  }
+})
+@View({template: ''})
+class NeedsQueryField {
+  textDirs;
+  savedTextDirs;
+
+  afterContentInit(){
+    this.savedTextDirs = this.textDirs;
+  }
 }
 
 @Directive({selector: '[dir]'})
@@ -568,6 +609,7 @@ class NeedsQuery {
   query: QueryList<TextDirective>;
   constructor(@Query(TextDirective) query: QueryList<TextDirective>) { this.query = query; }
 }
+
 
 @Component({selector: 'needs-query-desc'})
 @View({directives: [NgFor], template: '<div *ng-for="var dir of query">{{dir.text}}|</div>'})
@@ -707,22 +749,23 @@ class NeedsTpl {
 @Component({selector: 'my-comp'})
 @View({
   directives: [
-    NeedsQuery,
-    NeedsQueryDesc,
-    NeedsQueryByLabel,
-    NeedsQueryByTwoLabels,
-    NeedsQueryAndProject,
-    NeedsViewQuery,
-    NeedsViewQueryIf,
-    NeedsViewQueryNestedIf,
-    NeedsViewQueryOrder,
-    NeedsViewQueryByLabel,
-    NeedsViewQueryOrderWithParent,
-    NeedsTpl,
+    // NeedsQuery,
+    NeedsQueryField,
+    // NeedsQueryDesc,
+    // NeedsQueryByLabel,
+    // NeedsQueryByTwoLabels,
+    // NeedsQueryAndProject,
+    // NeedsViewQuery,
+    // NeedsViewQueryIf,
+    // NeedsViewQueryNestedIf,
+    // NeedsViewQueryOrder,
+    // NeedsViewQueryByLabel,
+    // NeedsViewQueryOrderWithParent,
+    // NeedsTpl,
     TextDirective,
-    InertDirective,
-    NgIf,
-    NgFor
+    // InertDirective,
+    // NgIf,
+    // NgFor
   ]
 })
 @Injectable()

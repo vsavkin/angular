@@ -126,6 +126,12 @@ export class DirectiveDependency extends Dependency {
   }
 }
 
+class QueryDescription extends QueryMetadata {
+  constructor(public setter:Function, public selector:any, public single:boolean) {
+    super(selector);
+  }
+}
+
 export class DirectiveBinding extends ResolvedBinding {
   constructor(key: Key, factory: Function, deps: Dependency[],
               public metadata: RenderDirectiveMetadata,
@@ -142,6 +148,15 @@ export class DirectiveBinding extends ResolvedBinding {
     return isPresent(this.metadata) && isPresent(this.metadata.events) ? this.metadata.events : [];
   }
 
+  get children() {
+    var res = [];
+    StringMapWrapper.forEach(this.metadata.children, (v, k) => {
+      var setter = reflector.setter(k);
+      res.push(new QueryDescription(setter, v.selector, false));
+    });
+    return res;
+  }
+
   static createFromBinding(binding: Binding, meta: DirectiveMetadata): DirectiveBinding {
     if (isBlank(meta)) {
       meta = new DirectiveMetadata();
@@ -151,6 +166,7 @@ export class DirectiveBinding extends ResolvedBinding {
     var rf = rb.resolvedFactories[0];
     var deps = rf.dependencies.map(DirectiveDependency.createFrom);
     var token = binding.token;
+
     var metadata = RenderDirectiveMetadata.create({
       id: stringify(binding.token),
       type: meta instanceof ComponentMetadata ? RenderDirectiveMetadata.COMPONENT_TYPE :
@@ -173,8 +189,11 @@ export class DirectiveBinding extends ResolvedBinding {
 
       changeDetection: meta instanceof ComponentMetadata ? meta.changeDetection : null,
 
+      children: meta.children,
+
       exportAs: meta.exportAs
     });
+
     var bindings = isPresent(meta.bindings) ? meta.bindings : [];
     var viewBindigs =
         meta instanceof ComponentMetadata && isPresent(meta.viewBindings) ? meta.viewBindings : [];
@@ -349,8 +368,6 @@ export class ElementInjector extends TreeNode<ElementInjector> implements Depend
                          new ElementInjectorDynamicStrategy(injectorStrategy, this);
 
     this.hydrated = false;
-
-    this._buildQueries();
   }
 
   dehydrate(): void {
@@ -369,6 +386,7 @@ export class ElementInjector extends TreeNode<ElementInjector> implements Depend
 
     this._reattachInjectors(imperativelyCreatedInjector);
     this._strategy.hydrate();
+    this._buildQueries();
 
     this.hydrated = true;
   }
@@ -443,6 +461,7 @@ export class ElementInjector extends TreeNode<ElementInjector> implements Depend
       }
     }
   }
+
 
   private _reattachInjector(injector: Injector, parentInjector: Injector, isBoundary: boolean) {
     injector.internalStrategy.attach(parentInjector, isBoundary);
@@ -554,19 +573,29 @@ export class ElementInjector extends TreeNode<ElementInjector> implements Depend
     for (var i = 0; i < deps.length; i++) {
       var dep = deps[i];
       if (isPresent(dep.queryDecorator)) {
-        this._createQueryRef(dep.queryDecorator);
+        this._createQueryRef(null, dep.queryDecorator);
       }
     }
   }
 
-  private _createQueryRef(query: QueryMetadata): void {
+  _buildChildren(obj:any, db: DirectiveBinding):void {
+    if (db.children.length > 0) {
+      console.log('_buildChildren: binding a child');
+    }
+    db.children.forEach(c => this._createQueryRef(obj, c));
+  }
+
+  // call a function timilar to _createQueryRef
+  // the original is the same, we just get that info from directive binding
+  // QuerySetters[] -> update the right field
+  private _createQueryRef(obj, query: QueryMetadata): void {
     var queryList = new QueryList<any>();
     if (isBlank(this._query0)) {
-      this._query0 = new QueryRef(query, queryList, this);
+      this._query0 = new QueryRef(obj, query, queryList, this);
     } else if (isBlank(this._query1)) {
-      this._query1 = new QueryRef(query, queryList, this);
+      this._query1 = new QueryRef(obj, query, queryList, this);
     } else if (isBlank(this._query2)) {
-      this._query2 = new QueryRef(query, queryList, this);
+      this._query2 = new QueryRef(obj, query, queryList, this);
     } else {
       throw new QueryError();
     }
@@ -795,6 +824,14 @@ class ElementInjectorInlineStrategy implements _ElementInjectorStrategy {
       this._ei._buildQueriesForDeps(
           <DirectiveDependency[]>p.binding9.resolvedFactories[0].dependencies);
     }
+
+
+    // new queries
+    var i = this.injectorStrategy;
+
+    if (p.binding0 instanceof DirectiveBinding) {
+      this._ei._buildChildren(i.obj0, <any>p.binding0);
+    }
   }
 
   addDirectivesMatchingQuery(query: QueryMetadata, list: any[]): void {
@@ -927,7 +964,7 @@ export class QueryError extends BaseException {
 }
 
 export class QueryRef {
-  constructor(public query: QueryMetadata, public list: QueryList<any>,
+  constructor(public obj, public query: QueryMetadata, public list: QueryList<any>,
               public originator: ElementInjector, public dirty: boolean = true) {}
 
   get isViewQuery(): boolean { return this.query.isViewQuery; }
@@ -935,6 +972,12 @@ export class QueryRef {
   update(): void {
     if (!this.dirty) return;
     this._update();
+
+    if (this.query instanceof QueryDescription) {
+      var setter = (<QueryDescription>this.query).setter;
+      setter(this.obj, this.list);
+    }
+
     this.dirty = false;
   }
 

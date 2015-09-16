@@ -699,8 +699,10 @@ export class DirectiveMetadata extends InjectableMetadata {
    */
   exportAs: string;
 
+  children:any;
+
   constructor({
-                  selector, properties, events, host, bindings, exportAs, compileChildren = true,
+                  selector, properties, events, host, bindings, exportAs, children, compileChildren = true,
               }: {
     selector?: string,
     properties?: string[],
@@ -709,6 +711,7 @@ export class DirectiveMetadata extends InjectableMetadata {
     bindings?: any[],
     exportAs?: string,
     compileChildren?: boolean,
+    children?: any
   } = {}) {
     super();
     this.selector = selector;
@@ -718,6 +721,7 @@ export class DirectiveMetadata extends InjectableMetadata {
     this.exportAs = exportAs;
     this.compileChildren = compileChildren;
     this.bindings = bindings;
+    this.children = children;
   }
 }
 
@@ -817,7 +821,7 @@ export class ComponentMetadata extends DirectiveMetadata {
    */
   viewBindings: any[];
 
-  constructor({selector, properties, events, host, exportAs, bindings, viewBindings,
+  constructor({selector, properties, events, host, exportAs, bindings, viewBindings, children,
                changeDetection = ChangeDetectionStrategy.Default, compileChildren = true}: {
     selector?: string,
     properties?: string[],
@@ -827,6 +831,7 @@ export class ComponentMetadata extends DirectiveMetadata {
     exportAs?: string,
     compileChildren?: boolean,
     viewBindings?: any[],
+    children?: any,
     changeDetection?: ChangeDetectionStrategy,
   } = {}) {
     super({
@@ -836,9 +841,9 @@ export class ComponentMetadata extends DirectiveMetadata {
       host: host,
       exportAs: exportAs,
       bindings: bindings,
+      children: children,
       compileChildren: compileChildren
     });
-
     this.changeDetection = changeDetection;
     this.viewBindings = viewBindings;
   }
