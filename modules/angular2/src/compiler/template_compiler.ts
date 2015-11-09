@@ -33,6 +33,16 @@ import {
   MODULE_SUFFIX
 } from './util';
 import {Inject} from 'angular2/src/core/di';
+import {TemplateCmd} from "../core/linker/template_commands";
+import {TemplateCmd} from "../core/linker/template_commands";
+import {ElementAst} from "./template_ast";
+import {DirectiveAst} from "./template_ast";
+import {BoundDirectivePropertyAst} from "./template_ast";
+import {ASTWithSource} from "../core/change_detection/parser/ast";
+import {Parser} from "../core/change_detection/parser/parser";
+
+import {reflector} from 'angular2/src/core/reflection/reflection';
+import {BoundTextAst} from "./template_ast";
 
 @Injectable()
 export class TemplateCompiler {
@@ -45,6 +55,7 @@ export class TemplateCompiler {
               private _templateNormalizer: TemplateNormalizer,
               private _templateParser: TemplateParser, private _styleCompiler: StyleCompiler,
               private _commandCompiler: CommandCompiler,
+              private parser:Parser,
               private _cdCompiler: ChangeDetectionCompiler, @Inject(APP_ID) appId: string) {
     this._appId = appId;
   }
@@ -100,7 +111,7 @@ export class TemplateCompiler {
   private _compileComponentRuntime(cacheKey: any, compMeta: CompileDirectiveMetadata,
                                    viewDirectives: CompileDirectiveMetadata[],
                                    compilingComponentCacheKeys: Set<any>): CompiledTemplate {
-    var compiledTemplate = this._compiledTemplateCache.get(cacheKey);
+    var compiledTemplate:CompiledTemplate = this._compiledTemplateCache.get(cacheKey);
     var done = this._compiledTemplateDone.get(cacheKey);
     if (isBlank(compiledTemplate)) {
       var styles;
@@ -123,6 +134,8 @@ export class TemplateCompiler {
                 var parsedTemplate = this._templateParser.parse(
                     compMeta.template.template, normalizedViewDirMetas, compMeta.type.name);
 
+                parsedTemplate = this.processParsedTemplate(cacheKey, parsedTemplate);
+
                 var changeDetectorFactories = this._cdCompiler.compileComponentRuntime(
                     compMeta.type, compMeta.changeDetection, parsedTemplate);
                 changeDetectorFactory = changeDetectorFactories[0];
@@ -136,9 +149,58 @@ export class TemplateCompiler {
                 SetWrapper.delete(compilingComponentCacheKeys, cacheKey);
                 return compiledTemplate;
               });
+
       this._compiledTemplateDone.set(cacheKey, done);
     }
     return compiledTemplate;
+  }
+
+  private processParsedTemplate(cacheKey, template:TemplateAst[]): TemplateAst[] {
+    const meta = reflector.annotations(cacheKey);
+    const containingFalcor:any = meta.filter(m => m.constructor.name === "FalcorMetadata" || m.constructor.name === "FalcorRootMetadata");
+
+    template.forEach((f:any) => {
+      if(f.directives) {
+        f.directives.forEach((d:any) => {
+          const meta = reflector.annotations(d.directive.type.runtime);
+          const falcor = meta.filter(m => m.constructor.name === "FalcorMetadata");
+          if (containingFalcor.length === 0 && falcor.length > 0) {
+            throw new Error("Falcor components can only be contained in FalcorRoot components or other Falcor components");
+          }
+
+          if (falcor.length === 0) return;
+
+          // model propagation
+          const containingModel = containingFalcor[0].model || "model";
+          const dirModel = falcor[0].model || "model";
+          const scope = falcor[0].scope || d.directive.selector;
+          falcor[0].scope = scope;
+
+          // this should be optional only if the directive has the input
+          d.inputs.push(new BoundDirectivePropertyAst(
+            dirModel,
+            dirModel,
+            this.parser.parseBinding(`${containingModel}.scope('${scope}')`, "location"),
+            "faked"
+          ));
+
+          // query
+          containingFalcor[0].query = containingFalcor[0].query || [];
+          containingFalcor[0].query.push(d.directive.type.runtime);
+        });
+      }
+
+      // this should be more generic
+      // we should use a visitor here to collect all the info
+      if (f instanceof BoundTextAst) {
+        containingFalcor[0].query = containingFalcor[0].query || [];
+        containingFalcor[0].query = f.value.ast.expressions.map(_ => _.name);
+      }
+    });
+
+
+
+    return template;
   }
 
   private _compileCommandsRuntime(compMeta: CompileDirectiveMetadata, templateId: number,
@@ -163,6 +225,20 @@ export class TemplateCompiler {
           return childTemplate;
         });
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   compileTemplatesCodeGen(components: NormalizedComponentWithViewDirectives[]): SourceModule {
     if (components.length === 0) {

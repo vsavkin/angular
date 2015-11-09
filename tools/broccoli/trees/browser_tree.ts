@@ -134,7 +134,7 @@ module.exports = function makeBrowserTree(options, destinationPath) {
     mapRoot: '',  // force sourcemaps to use relative path
     module: 'commonjs',
     moduleResolution: 'classic',
-    noEmitOnError: true,
+    noEmitOnError: false,
     rootDir: '.',
     rootFilePaths: ['angular2/manual_typings/globals.d.ts'],
     sourceMap: true,

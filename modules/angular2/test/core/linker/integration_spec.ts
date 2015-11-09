@@ -94,7 +94,12 @@ import {TemplateRef} from 'angular2/src/core/linker/template_ref';
 import {DomRenderer} from 'angular2/src/core/render/dom/dom_renderer';
 import {IS_DART} from 'angular2/src/facade/lang';
 
+import {makeDecorator} from 'angular2/src/core/util/decorators';
+
 const ANCHOR_ELEMENT = CONST_EXPR(new OpaqueToken('AnchorElement'));
+
+import {reflector} from 'angular2/src/core/reflection/reflection';
+
 
 export function main() {
   describe('integration tests', function() {
@@ -1770,6 +1775,121 @@ export function main() {
                });
          }));
     });
+
+    iit('should support wrapping components into generated-components',
+      inject([TestComponentBuilder, AsyncTestCompleter], (tcb: TestComponentBuilder, async) => {
+
+        // falcor metadata
+        class FalcorMetadata { model; query; scope; }
+        class FalcorRootMetadata extends FalcorMetadata {}
+        const Falcor = makeDecorator(FalcorMetadata);
+        const FalcorRoot = makeDecorator(FalcorRootMetadata);
+
+        // falcor model to mutate stuff in place
+        class FalcorModel {
+          scoped;
+          constructor(public path:string){}
+          scope(n) {
+            if (this.scoped) return this.scoped;
+            this.scoped = new FalcorModel(`${this.path}/${n}`);
+            return this.scoped;
+          }
+
+          update(key, value) {
+            console.log("mutate path", path, "key", key, "value", value);
+          }
+        }
+
+        function resolveQuery(array:any[]) {
+          if (!array) return;
+          return array.map(obj => {
+            if (typeof obj === "string") return obj;
+            const meta = reflector.annotations(obj);
+            const falcor:any = meta.filter(m => m instanceof FalcorMetadata)[0];
+            return {scope: falcor.scope, query: resolveQuery(falcor.query)};
+          })
+        }
+
+        function loadFalcorData(type) {
+          const meta = reflector.annotations(type);
+          const falcor:any = meta.filter(m => m instanceof FalcorRootMetadata)[0];
+          console.log("query", JSON.stringify(resolveQuery(falcor.query)));
+          return [{id: 1, title: 'Great'}];
+        }
+
+
+
+
+        @Component({selector: 'todo', template: `{{data.title}} - {{data.id}}`})
+        @Falcor()
+        class Todo {
+          // only special attributes: FalcorInput should be used in Query detection
+          // @FalcorInput() data;
+          // @FaclorModel() model;
+          @Input() data;
+          @Input() model;
+
+          constructor() {
+            setTimeout(() => {
+              console.log("scoped model", this.model);
+              // since model is property scoped, we can do this.model.setValue("title", "newTitle");
+            });
+            console.log("create todo");
+          }
+        }
+
+        @Component({selector: 'todos', template: `<todo [data]="data[0]"></todo>`, directives: [Todo]})
+        @Falcor()
+        class Todos {
+          @Input() data;
+          @Input() model;
+
+          constructor() {
+            setTimeout(() => {
+              console.log("scoped model", this.model);
+            });
+            console.log("create todos");
+          }
+        }
+
+        @Component({selector: 'root', template: '<todos [data]="data"></todos>', directives: [Todos]})
+        @FalcorRoot()
+        class Root {
+          model;
+          data;
+          constructor() {
+            console.log("create root");
+            this.model = new FalcorModel("root");
+            this.data = loadFalcorData(Root);
+          }
+        }
+
+
+
+        /*
+         It will print.
+
+         LOG: 'create root'
+
+         LOG: 'query', '[{"scope":"todos","query":[{"scope":"todo","query":["title","id"]}]}]'
+         Note, the created query can be serialized into something Falcor likes. The query got created without
+         us having to provision anything manually.
+
+         LOG: 'create todos'
+         LOG: 'create todo'
+
+         LOG: 'scoped model', FalcorModel{path: 'root/todos', scoped: FalcorModel{path: 'root/todos/todo'}}
+         LOG: 'scoped model', FalcorModel{path: 'root/todos/todo'}
+         // Note, the models got scoped properly without us having to do anything!
+         */
+
+        tcb.overrideView(MyComp, new ViewMetadata({template: '<root></root>', directives: [Root]}))
+          .createAsync(MyComp)
+          .then((fixture) => {
+            fixture.detectChanges();
+            async.done();
+          }).catch(console.error.bind(console));
+      }));
 
     if (DOM.supportsDOMEvents()) {
       describe('svg', () => {
