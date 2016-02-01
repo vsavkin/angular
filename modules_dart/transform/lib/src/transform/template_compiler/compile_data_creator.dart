@@ -124,6 +124,7 @@ class _CompileDataCreator {
             'Missing prefix "${dep.prefix}" '
             'needed by "${dep}" from metadata map',
             asset: entryPoint);
+        return null;
       }
       final depNgMeta = ngMetaMap[dep.prefix];
 
@@ -165,10 +166,16 @@ class _CompileDataCreator {
   }
 
  void _resolveDiDependencyMetadata(
-      Map<String, NgMeta> ngMetaMap,CompileTypeMetadata neededBy, List<CompileDiDependencyMetadata> deps) {
+      Map<String, NgMeta> ngMetaMap, CompileTypeMetadata neededBy, List<CompileDiDependencyMetadata> deps) {
     if (deps == null) return;
     for (var dep in deps) {
       dep.token = _resolveIdentifier(ngMetaMap, neededBy, dep.token);
+      if (dep.query != null) {
+        dep.query.selectors = dep.query.selectors.map((s) => _resolveIdentifier(ngMetaMap, neededBy, s)).toList();
+      }
+      if (dep.viewQuery != null) {
+        dep.viewQuery.selectors = dep.viewQuery.selectors.map((s) => _resolveIdentifier(ngMetaMap, neededBy, s)).toList();
+      }
     }
   }
 
