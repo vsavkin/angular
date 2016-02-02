@@ -216,8 +216,9 @@ void allTests() {
     barNgMeta.identifiers['Service2'] = new CompileTypeMetadata(name: 'Service2', moduleUrl: 'moduleUrl');
 
     fooComponentMeta.template = new CompileTemplateMetadata(template: "import 'bar.dart';");
-    fooComponentMeta.providers = [new CompileProviderMetadata(token: new CompileIdentifierMetadata(name: 'Service1'), useClass:
-    new CompileTypeMetadata(name: 'Service2'))];
+    fooComponentMeta.providers = [
+      new CompileProviderMetadata(token: new CompileIdentifierMetadata(name: 'Service1'), useClass: new CompileTypeMetadata(name: 'Service2'))
+    ];
 
     final viewAnnotation = new AnnotationModel()..name = 'View'..isView = true;
     final reflectable = fooNgMeta.ngDeps.reflectables.first;
@@ -235,6 +236,51 @@ void allTests() {
     expect(cmp.providers[0].token.moduleUrl).toEqual("moduleUrl");
     expect(cmp.providers[0].useClass.name).toEqual("Service2");
     expect(cmp.providers[0].useClass.moduleUrl).toEqual("moduleUrl");
+  });
+
+  it('should generate providers from Provider objects (references).', () async {
+    barNgMeta.identifiers['Service1'] = new CompileTypeMetadata(name: 'Service1', moduleUrl: 'moduleUrl');
+    barNgMeta.identifiers['Service2'] = new CompileTypeMetadata(name: 'Service2', moduleUrl: 'moduleUrl');
+    barNgMeta.identifiers['factoryFn'] = new CompileTypeMetadata(name: 'factoryFn', moduleUrl: 'moduleUrl');
+
+    fooComponentMeta.template = new CompileTemplateMetadata(template: "import 'bar.dart';");
+    fooComponentMeta.providers = [
+      new CompileProviderMetadata(token: 'token', useClass: new CompileTypeMetadata(name: 'Service2')),
+      new CompileProviderMetadata(token: 'token', useExisting: new CompileIdentifierMetadata(name: 'Service2')),
+      new CompileProviderMetadata(token: 'token', useValue: new CompileIdentifierMetadata(name: 'Service2')),
+      new CompileProviderMetadata(token: 'token', useValue: 'strValue'),
+      new CompileProviderMetadata(token: 'token', useFactory: new CompileFactoryMetadata(name: 'factoryFn', diDeps: [
+        new CompileDiDependencyMetadata(token: new CompileIdentifierMetadata(name: 'Service2'))
+      ]))
+    ];
+
+    final viewAnnotation = new AnnotationModel()..name = 'View'..isView = true;
+    final reflectable = fooNgMeta.ngDeps.reflectables.first;
+    reflectable.annotations.add(viewAnnotation);
+    fooNgMeta.ngDeps.imports.add(new ImportModel()..uri = 'package:a/bar.dart');
+
+    updateReader();
+
+    final viewDefResults = await createCompileData(reader, fooAssetId, [], []);
+    final cmp = viewDefResults.viewDefinitions.values.first.component;
+
+    expect(cmp.providers.length).toEqual(5);
+
+    expect(cmp.providers[0].useClass.name).toEqual("Service2");
+    expect(cmp.providers[0].useClass.moduleUrl).toEqual("moduleUrl");
+
+    expect(cmp.providers[1].useExisting.name).toEqual("Service2");
+    expect(cmp.providers[1].useExisting.moduleUrl).toEqual("moduleUrl");
+
+    expect(cmp.providers[2].useValue.name).toEqual("Service2");
+    expect(cmp.providers[2].useValue.moduleUrl).toEqual("moduleUrl");
+
+    expect(cmp.providers[3].useValue).toEqual("strValue");
+
+    expect(cmp.providers[4].useFactory.name).toEqual("factoryFn");
+    expect(cmp.providers[4].useFactory.moduleUrl).toEqual("moduleUrl");
+    expect(cmp.providers[4].useFactory.diDeps[0].token.name).toEqual("Service2");
+    expect(cmp.providers[4].useFactory.diDeps[0].token.moduleUrl).toEqual("moduleUrl");
   });
 
   it('should generate providers from Provider objects (literals).', () async {

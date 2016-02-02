@@ -11,3 +11,6 @@ class PipeDep {}
 
 @Injectable()
 class ServiceDep {}
+
+@Injectable()
+dynamic factoryFn(Object a){}

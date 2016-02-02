@@ -641,6 +641,69 @@ void allTests() {
       expect(useClass.name).toEqual("ServiceDep");
     });
 
+    it('should populate `providers` using multi.',
+        () async {
+      var cmp =
+      (await _testCreateModel('directives_files/components.dart')).identifiers['ComponentWithProvidersUseMulti'];
+
+      expect(cmp).toBeNotNull();
+      expect(cmp.providers).toBeNotNull();
+      expect(cmp.providers.length).toEqual(1);
+      expect(cmp.providers.first.multi).toEqual(true);
+    });
+
+    it('should populate `providers` using useExisting.',
+        () async {
+      var cmp =
+          (await _testCreateModel('directives_files/components.dart')).identifiers['ComponentWithProvidersUseExisting'];
+
+      expect(cmp).toBeNotNull();
+      expect(cmp.providers).toBeNotNull();
+      expect(cmp.providers.length).toEqual(1);
+
+      var useExisting = cmp.providers.first.useExisting;
+      expect(useExisting.prefix).toEqual(null);
+      expect(useExisting.name).toEqual("ServiceDep");
+    });
+
+    it('should populate `providers` using useFactory.',
+        () async {
+      var cmp =
+          (await _testCreateModel('directives_files/components.dart')).identifiers['ComponentWithProvidersUseFactory'];
+
+      expect(cmp).toBeNotNull();
+      expect(cmp.providers).toBeNotNull();
+      expect(cmp.providers.length).toEqual(1);
+
+      var useFactory = cmp.providers.first.useFactory;
+      expect(useFactory.prefix).toEqual(null);
+      expect(useFactory.name).toEqual("factoryFn");
+      expect(useFactory.diDeps.length).toEqual(6);
+      expect(useFactory.diDeps[0].token.name).toEqual("ServiceDep");
+      expect(useFactory.diDeps[1].token).toEqual("someToken");
+      expect(useFactory.diDeps[2].token.name).toEqual("ServiceDep");
+      expect(useFactory.diDeps[2].isOptional).toEqual(true);
+      expect(useFactory.diDeps[3].token.name).toEqual("ServiceDep");
+      expect(useFactory.diDeps[3].isSelf).toEqual(true);
+      expect(useFactory.diDeps[4].token.name).toEqual("ServiceDep");
+      expect(useFactory.diDeps[4].isHost).toEqual(true);
+      expect(useFactory.diDeps[5].token.name).toEqual("ServiceDep");
+      expect(useFactory.diDeps[5].isSkipSelf).toEqual(true);
+    });
+    
+    it('should populate `providers` using useValue.',
+        () async {
+      var cmp =
+      (await _testCreateModel('directives_files/components.dart')).identifiers['ComponentWithProvidersUseValue'];
+
+      expect(cmp).toBeNotNull();
+      expect(cmp.providers).toBeNotNull();
+      expect(cmp.providers.length).toEqual(2);
+
+      expect(cmp.providers[0].useValue.name).toEqual("ServiceDep");
+      expect(cmp.providers[1].useValue).toEqual("strValue");
+    });
+
     it('should populate `providers` using a string token.',
         () async {
       var cmp =

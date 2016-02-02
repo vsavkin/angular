@@ -427,13 +427,35 @@ class _DirectiveMetadataVisitor extends Object
         final token = el.argumentList.arguments.first;
 
         var useClass;
+        var useExisting;
+        var useValue;
+        var deps;
+        var factoryId;
+        var multi;
         el.argumentList.arguments.skip(1).forEach((arg) {
           if (arg.name.toString() == "useClass:") {
             final id = _readIdentifier(arg.expression);
             useClass = new CompileTypeMetadata(prefix: id.prefix, name: id.name);
           }
+          if (arg.name.toString() == "useExisting:") {
+            useExisting = _readIdentifier(arg.expression);
+          }
+          if (arg.name.toString() == "useFactory:") {
+            factoryId = _readIdentifier(arg.expression);
+          }
+          if (arg.name.toString() == "deps:") {
+            deps = _readDeps(arg.expression);
+          }
+          if (arg.name.toString() == "multi:") {
+            multi = naiveEval(arg.expression);
+          }
+          if (arg.name.toString() == "useValue:") {
+            useValue = _readIdentifier(arg.expression);
+          }
         });
-        return new CompileProviderMetadata(token: _readIdentifier(token), useClass: useClass);
+
+        final useFactory = factoryId != null ? new CompileFactoryMetadata(name: factoryId.name, prefix: factoryId.prefix, diDeps: deps) : null;
+        return new CompileProviderMetadata(token: _readIdentifier(token), useClass: useClass, useExisting: useExisting, useFactory: useFactory, multi: multi, useValue: useValue);
 
       } else {
         throw new ArgumentError(
@@ -442,6 +464,51 @@ class _DirectiveMetadataVisitor extends Object
     });
 
     _providers.addAll(providers);
+  }
+
+  List<CompileDiDependencyMetadata> _readDeps(Expression exp) {
+    if (exp is! ListLiteral) {
+      throw new ArgumentError(
+          'Incorrect value. Expected a list of tokens or null, but got "${el}".');
+    }
+    return (exp as ListLiteral).elements.map((el) {
+      if (el is ListLiteral) {
+        return _createDiDependencyMetadata(el.elements);
+      } else {
+        return _createDiDependencyMetadata([el]);
+      }
+    }).toList();
+  }
+
+  CompileDiDependencyMetadata _createDiDependencyMetadata(List<Expression> exps) {
+    var token;
+    var isOptional;
+    var isSelf;
+    var isHost;
+    var isSkipSelf;
+
+    exps.forEach((el){
+      if (el is InstanceCreationExpression && el.constructorName.toString() == "Inject") {
+        token = _readIdentifier(el.argumentList.arguments.first);
+
+      } else if (el is InstanceCreationExpression && el.constructorName.toString() == "Optional") {
+        isOptional = true;
+
+      } else if (el is InstanceCreationExpression && el.constructorName.toString() == "Self") {
+        isSelf = true;
+
+      } else if (el is InstanceCreationExpression && el.constructorName.toString() == "Host") {
+        isHost = true;
+
+      } else if (el is InstanceCreationExpression && el.constructorName.toString() == "SkipSelf") {
+        isSkipSelf = true;
+
+      } else {
+        token = _readIdentifier(el);
+      }
+    });
+
+    return new CompileDiDependencyMetadata(token: token, isOptional: isOptional, isSelf: isSelf, isHost: isHost, isSkipSelf: isSkipSelf);
   }
 
   //TODO Use AnnotationMatcher instead of string matching

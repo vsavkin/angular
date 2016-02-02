@@ -18,7 +18,9 @@ import {
   CompileTemplateMetadata,
   CompileProviderMetadata,
   CompileDiDependencyMetadata,
-  CompileQueryMetadata
+  CompileQueryMetadata,
+  CompileFactoryMetadata,
+  CompileIdentifierMetadata
 } from 'angular2/src/compiler/directive_metadata';
 import {ViewEncapsulation} from 'angular2/src/core/metadata/view';
 import {ChangeDetectionStrategy} from 'angular2/src/core/change_detection';
@@ -29,6 +31,7 @@ export function main() {
     var fullTypeMeta: CompileTypeMetadata;
     var fullTemplateMeta: CompileTemplateMetadata;
     var fullDirectiveMeta: CompileDirectiveMetadata;
+    var fullFactoryMeta: CompileFactoryMetadata;
 
     beforeEach(() => {
       fullTypeMeta = new CompileTypeMetadata({
@@ -46,6 +49,9 @@ export function main() {
           viewQuery: new CompileQueryMetadata({selectors: ['one'], descendants: true, first: true, propertyName: 'one'})
         })]
       });
+
+      fullFactoryMeta = new CompileFactoryMetadata({name: 'factory', prefix: 'factoryPr', moduleUrl: 'url', diDeps: [new CompileDiDependencyMetadata({token: 'dep'})]});
+
       fullTemplateMeta = new CompileTemplateMetadata({
         encapsulation: ViewEncapsulation.Emulated,
         template: '<a></a>',
@@ -65,7 +71,9 @@ export function main() {
         outputs: ['someEvent'],
         host: {'(event1)': 'handler1', '[prop1]': 'expr1', 'attr1': 'attrValue2'},
         lifecycleHooks: [LifecycleHooks.OnChanges],
-        providers: [new CompileProviderMetadata({token: 'token', useClass: fullTypeMeta})]
+        providers: [
+          new CompileProviderMetadata({token: 'token', useClass: fullTypeMeta, useValue: 'someValue', useExisting: new CompileIdentifierMetadata({name: 'existing'}), useFactory: fullFactoryMeta, multi: true})
+        ]
       });
 
     });
@@ -90,6 +98,17 @@ export function main() {
       it('should serialize with no data', () => {
         var empty = new CompileTypeMetadata();
         expect(CompileTypeMetadata.fromJson(empty.toJson())).toEqual(empty);
+      });
+    });
+
+    describe('FactoryMetadata', () => {
+      it('should serialize with full data', () => {
+        expect(CompileFactoryMetadata.fromJson(fullFactoryMeta.toJson())).toEqual(fullFactoryMeta);
+      });
+
+      it('should serialize with no data', () => {
+        var empty = new CompileFactoryMetadata();
+        expect(CompileFactoryMetadata.fromJson(empty.toJson())).toEqual(empty);
       });
     });
 

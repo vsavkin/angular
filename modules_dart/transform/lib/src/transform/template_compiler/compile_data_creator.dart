@@ -158,6 +158,17 @@ class _CompileDataCreator {
         provider.token = _resolveIdentifier(ngMetaMap, neededBy, provider.token);
         if (provider.useClass != null) {
           provider.useClass = _resolveIdentifier(ngMetaMap, neededBy, provider.useClass);
+        }        
+        if (provider.useExisting != null) {
+          provider.useExisting = _resolveIdentifier(ngMetaMap, neededBy, provider.useExisting);
+        }
+        if (provider.useValue != null) {
+          provider.useValue = _resolveIdentifier(ngMetaMap, neededBy, provider.useValue);
+        }
+        if (provider.useFactory != null) {
+          final id = _resolveIdentifier(ngMetaMap, neededBy, provider.useFactory);
+          provider.useFactory.moduleUrl = id.moduleUrl;
+          _resolveDiDependencyMetadata(ngMetaMap, neededBy, provider.useFactory.diDeps);
         }
         resolvedProviders.add(provider);
       }

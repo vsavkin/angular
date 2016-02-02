@@ -141,16 +141,14 @@ export class CompileProviderMetadata {
   useValue: any;
   useExisting: CompileIdentifierMetadata | string;
   useFactory: CompileFactoryMetadata;
-  deps: CompileDiDependencyMetadata[];
   multi: boolean;
 
-  constructor({token, useClass, useValue, useExisting, useFactory, deps, multi}: {
+  constructor({token, useClass, useValue, useExisting, useFactory, multi}: {
     token?: CompileIdentifierMetadata | string,
     useClass?: CompileTypeMetadata,
     useValue?: any,
     useExisting?: CompileIdentifierMetadata | string,
     useFactory?: CompileFactoryMetadata,
-    deps?: CompileDiDependencyMetadata[],
     multi?: boolean
   }) {
     this.token = token;
@@ -158,14 +156,17 @@ export class CompileProviderMetadata {
     this.useValue = useValue;
     this.useExisting = useExisting;
     this.useFactory = useFactory;
-    this.deps = deps;
     this.multi = multi;
   }
 
   static fromJson(data: {[key: string]: any}): CompileProviderMetadata {
     return new CompileProviderMetadata({
       token: objFromJson(data['token'], CompileIdentifierMetadata.fromJson),
-      useClass: objFromJson(data['useClass'], CompileTypeMetadata.fromJson)
+      useClass: objFromJson(data['useClass'], CompileTypeMetadata.fromJson),
+      useExisting: objFromJson(data['useExisting'], CompileIdentifierMetadata.fromJson),
+      useValue: objFromJson(data['useValue'], CompileIdentifierMetadata.fromJson),
+      useFactory: objFromJson(data['useFactory'], CompileFactoryMetadata.fromJson),
+      multi: data['multi']
     });
   }
 
@@ -173,7 +174,11 @@ export class CompileProviderMetadata {
     return {
       // Note: Runtime type can't be serialized...
       'token': objToJson(this.token),
-      'useClass': objToJson(this.useClass)
+      'useClass': objToJson(this.useClass),
+      'useExisting': objToJson(this.useExisting),
+      'useValue': objToJson(this.useValue),
+      'useFactory': objToJson(this.useFactory),
+      'multi': this.multi
     };
   }
 }
@@ -185,21 +190,40 @@ export class CompileFactoryMetadata implements CompileIdentifierMetadata {
   moduleUrl: string;
   diDeps: CompileDiDependencyMetadata[];
 
-  constructor({runtime, name, moduleUrl, diDeps}: {
+  constructor({runtime, name, prefix, moduleUrl, diDeps}: {
     runtime?: Function,
     name?: string,
+    prefix?: string,
     moduleUrl?: string,
     diDeps?: CompileDiDependencyMetadata[]
-  }) {
+  } = {}) {
     this.runtime = runtime;
     this.name = name;
+    this.prefix = prefix;
     this.moduleUrl = moduleUrl;
-    this.diDeps = diDeps;
+    this.diDeps = normalizeBlank(diDeps);
   }
 
   get identifier():CompileIdentifierMetadata { return this; }
 
-  toJson() { return null; }
+  static fromJson(data: {[key: string]: any}): CompileFactoryMetadata {
+    return new CompileFactoryMetadata({
+      name: data['name'],
+      prefix: data['prefix'],
+      moduleUrl: data['moduleUrl'],
+      diDeps: arrayFromJson(data['diDeps'], CompileDiDependencyMetadata.fromJson)
+    });
+  }
+
+  toJson(): {[key: string]: any} {
+    return {
+      // Note: Runtime type can't be serialized...
+      'name': this.name,
+      'prefix': this.prefix,
+      'moduleUrl': this.moduleUrl,
+      'diDeps': arrayToJson(this.diDeps)
+    };
+  }
 }
 
 /**

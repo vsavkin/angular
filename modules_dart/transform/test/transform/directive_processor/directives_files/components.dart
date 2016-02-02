@@ -104,6 +104,34 @@ class ComponentWithProvidersStringToken {}
 class ComponentWithProvidersUseClass {}
 
 @Component(
+    selector: 'component-with-providers-use-existing',
+    template: '',
+    providers: [const Provider(ServiceDep, useExisting: ServiceDep)])
+class ComponentWithProvidersUseExisting {}
+
+@Component(
+    selector: 'component-with-providers-use-factory',
+    template: '',
+    providers: [const Provider(ServiceDep, useFactory: factoryFn,
+        deps: const [ServiceDep, const Inject('someToken'), [const Optional(), ServiceDep], [const Self(), ServiceDep], [const Host(), ServiceDep], [const SkipSelf(), ServiceDep]])])
+class ComponentWithProvidersUseFactory {}
+
+@Component(
+    selector: 'component-with-providers-use-factory',
+    template: '',
+    providers: [const Provider(ServiceDep, useClass: ServiceDep, multi: true)])
+class ComponentWithProvidersUseMulti {}
+
+@Component(
+    selector: 'component-with-providers-use-value',
+    template: '',
+    providers: [
+      const Provider(ServiceDep, useValue: ServiceDep),
+      const Provider(ServiceDep, useValue: 'strValue')
+    ])
+class ComponentWithProvidersUseValue {}
+
+@Component(
     selector: 'component-with-di-deps',
     template: '')
 class ComponentWithDiDeps {
