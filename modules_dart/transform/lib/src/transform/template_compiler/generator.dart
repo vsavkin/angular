@@ -42,7 +42,7 @@ Future<Outputs> processTemplates(AssetReader reader, AssetId assetId,
   var viewDefResults = await createCompileData(
       reader, assetId, platformDirectives, platformPipes);
   if (viewDefResults == null) return null;
-  final compileTypeMetadatas = viewDefResults.ngMeta.types.values;
+  final compileTypeMetadatas = viewDefResults.ngMeta.identifiers.values;
   if (compileTypeMetadatas.isNotEmpty) {
     var processor = new reg.Processor();
     compileTypeMetadatas.forEach(processor.process);
