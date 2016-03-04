@@ -162,6 +162,17 @@ class _CompileDataCreator {
         if (provider.useClass != null) {
           provider.useClass = _resolveIdentifier(ngMetaMap, neededBy, provider.useClass);
         }
+        if (provider.useExisting != null) {
+          provider.useExisting = _resolveIdentifier(ngMetaMap, neededBy, provider.useExisting);
+        }
+        if (provider.useValue != null) {
+          provider.useValue = _resolveIdentifier(ngMetaMap, neededBy, provider.useValue);
+        }
+        if (provider.useFactory != null) {
+          final resolved = _resolveIdentifier(ngMetaMap, neededBy, provider.useFactory);
+          provider.useFactory.moduleUrl = resolved.moduleUrl;
+          _resolveDiDependencyMetadata(ngMetaMap, neededBy, provider.useFactory.diDeps);
+        }
         resolvedProviders.add(provider);
       }
     }
@@ -184,7 +195,7 @@ class _CompileDataCreator {
   }
 
   dynamic _resolveAlias(Map<String, NgMeta> ngMetaMap, CompileTypeMetadata neededBy, dynamic id) {
-    if (id is String || id == null) return null;
+    if (id is String || id is bool || id is num || id == null) return id;
 
     final prefix = id.prefix == null ? "" : id.prefix;
 
@@ -205,7 +216,7 @@ class _CompileDataCreator {
   }
 
   dynamic _resolveIdentifier(Map<String, NgMeta> ngMetaMap, CompileTypeMetadata neededBy, dynamic id) {
-    if (id is String || id == null) return id;
+    if (id is String || id is bool || id is num || id == null) return id;
 
     final prefix = id.prefix == null ? "" : id.prefix;
 
