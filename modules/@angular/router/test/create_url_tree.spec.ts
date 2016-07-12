@@ -8,6 +8,8 @@ import {DefaultUrlSerializer, UrlPathWithParams, UrlSegment, UrlTree} from '../s
 describe('createUrlTree', () => {
   const serializer = new DefaultUrlSerializer();
 
+
+  
   it('should navigate to the root', () => {
     const p = serializer.parse('/');
     const t = createRoot(p, ['/']);
