@@ -1610,6 +1610,7 @@ describe('Integration', () => {
                  .toEqual(
                      `RouterModule.forRoot() called twice. Lazy loaded modules should use RouterModule.forChild() instead.`);
            })));
+
     it('should combine routes from multiple modules into a single configuration',
        fakeAsync(inject(
            [Router, Location, NgModuleFactoryLoader],
