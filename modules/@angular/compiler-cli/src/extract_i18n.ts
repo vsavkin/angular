@@ -10,6 +10,8 @@
 
 /**
  * Extract i18n messages from source code
+ *
+ * TODO(vicb): factorize code with the CodeGenerator
  */
 // Must be imported first, because angular2 decorators throws on load.
 import 'reflect-metadata';

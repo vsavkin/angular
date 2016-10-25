@@ -378,15 +378,15 @@ export class CompileMetadataResolver {
   }
 
   private _getTypeDescriptor(type: Type<any>): string {
-    if (this._directiveResolver.resolve(type, false)) {
+    if (this._directiveResolver.resolve(type, false) !== null) {
       return 'directive';
     }
 
-    if (this._pipeResolver.resolve(type, false)) {
+    if (this._pipeResolver.resolve(type, false) !== null) {
       return 'pipe';
     }
 
-    if (this._ngModuleResolver.resolve(type, false)) {
+    if (this._ngModuleResolver.resolve(type, false) !== null) {
       return 'module';
     }
 
@@ -508,7 +508,7 @@ export class CompileMetadataResolver {
       let isOptional = false;
       let query: Query = null;
       let viewQuery: Query = null;
-      let token: any = null;
+      var token: any = null;
       if (Array.isArray(param)) {
         param.forEach((paramEntry) => {
           if (paramEntry instanceof Host) {
@@ -605,20 +605,19 @@ export class CompileMetadataResolver {
       } else if (isValidType(provider)) {
         compileProvider = this.getTypeMetadata(provider, staticTypeModuleUrl(provider));
       } else {
-        const providersInfo =
-            (<string[]>providers.reduce(
-                 (soFar: string[], seenProvider: any, seenProviderIdx: number) => {
-                   if (seenProviderIdx < providerIdx) {
-                     soFar.push(`${stringify(seenProvider)}`);
-                   } else if (seenProviderIdx == providerIdx) {
-                     soFar.push(`?${stringify(seenProvider)}?`);
-                   } else if (seenProviderIdx == providerIdx + 1) {
-                     soFar.push('...');
-                   }
-                   return soFar;
-                 },
-                 []))
-                .join(', ');
+        let providersInfo = (<string[]>providers.reduce(
+                                 (soFar: string[], seenProvider: any, seenProviderIdx: number) => {
+                                   if (seenProviderIdx < providerIdx) {
+                                     soFar.push(`${stringify(seenProvider)}`);
+                                   } else if (seenProviderIdx == providerIdx) {
+                                     soFar.push(`?${stringify(seenProvider)}?`);
+                                   } else if (seenProviderIdx == providerIdx + 1) {
+                                     soFar.push('...');
+                                   }
+                                   return soFar;
+                                 },
+                                 []))
+                                .join(', ');
 
         throw new Error(
             `Invalid ${debugInfo ? debugInfo : 'provider'} - only instances of Provider and Type are allowed, got: [${providersInfo}]`);
