@@ -88,7 +88,7 @@ describe('Router', () => {
 
 function checkResolveData(
     future: RouterStateSnapshot, curr: RouterStateSnapshot, injector: any, check: any): void {
-  const p = new PreActivation(future, curr, injector);
+  const p = new PreActivation(future, curr, injector, () => true);
   p.traverse(new RouterOutletMap());
   p.resolveData().subscribe(check, (e) => { throw e; });
 }

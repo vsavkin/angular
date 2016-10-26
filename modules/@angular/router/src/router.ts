@@ -285,6 +285,7 @@ function defaultErrorHandler(error: any): any {
  */
 export class Router {
   private currentUrlTree: UrlTree;
+  private futureUrlTree: UrlTree;
   private currentRouterState: RouterState;
   private locationSubscription: Subscription;
   private routerEvents: Subject<Event>;
@@ -313,7 +314,7 @@ export class Router {
       loader: NgModuleFactoryLoader, compiler: Compiler, public config: Routes) {
     this.resetConfig(config);
     this.routerEvents = new Subject<Event>();
-    this.currentUrlTree = createEmptyUrlTree();
+    this.futureUrlTree = this.currentUrlTree = createEmptyUrlTree();
     this.configLoader = new RouterConfigLoader(loader, compiler);
     this.currentRouterState = createEmptyState(this.currentUrlTree, this.rootComponentType);
   }
@@ -347,7 +348,8 @@ export class Router {
       const tree = this.urlSerializer.parse(change['url']);
       // we fire multiple events for a single URL change
       // we should navigate only once
-      return this.currentUrlTree.toString() !== tree.toString() ?
+      // return this.currentUrlTree.toString() !== tree.toString() ?
+      return this.futureUrlTree.toString() !== tree.toString() ?
           this.scheduleNavigation(tree, {skipLocationChange: change['pop'], replaceUrl: true}) :
           null;
     }));
@@ -526,6 +528,8 @@ export class Router {
   }
 
   private scheduleNavigation(url: UrlTree, extras: NavigationExtras): Promise<boolean> {
+    this.futureUrlTree = url;
+
     const id = ++this.navigationId;
     this.routerEvents.next(new NavigationStart(id, this.serializeUrl(url)));
     return Promise.resolve().then(
@@ -574,11 +578,14 @@ export class Router {
       const preactivation$ = map.call(routerState$, (newState: RouterState) => {
         state = newState;
         preActivation =
-            new PreActivation(state.snapshot, this.currentRouterState.snapshot, this.injector);
+            new PreActivation(state.snapshot, this.currentRouterState.snapshot, this.injector,
+            () => id !== this.navigationId);
         preActivation.traverse(this.outletMap);
       });
 
-      const preactivation2$ = mergeMap.call(preactivation$, () => preActivation.checkGuards());
+      const preactivation2$ = mergeMap.call(preactivation$, ():Observable<boolean> => {
+        return preActivation.checkGuards();
+      });
 
       const resolveData$ = mergeMap.call(preactivation2$, (shouldActivate: boolean) => {
         if (shouldActivate) {
@@ -595,7 +602,7 @@ export class Router {
               return;
             }
 
-            this.currentUrlTree = appliedUrl;
+            this.futureUrlTree = this.currentUrlTree = appliedUrl;
             this.currentRouterState = state;
 
             if (!shouldPreventPushState) {
@@ -640,7 +647,7 @@ export class Router {
 
                 if (id === this.navigationId) {
                   this.currentRouterState = storedState;
-                  this.currentUrlTree = storedUrl;
+                  this.futureUrlTree = this.currentUrlTree = storedUrl;
                   this.location.replaceState(this.serializeUrl(storedUrl));
                 }
               });
@@ -663,7 +670,7 @@ export class PreActivation {
   private checks: Array<CanActivate|CanDeactivate> = [];
   constructor(
       private future: RouterStateSnapshot, private curr: RouterStateSnapshot,
-      private injector: Injector) {}
+      private injector: Injector, private shouldBeCanceled: () => boolean) {}
 
   traverse(parentOutletMap: RouterOutletMap): void {
     const futureRoot = this.future._root;
@@ -675,6 +682,8 @@ export class PreActivation {
     if (this.checks.length === 0) return of (true);
     const checks$ = from(this.checks);
     const runningChecks$ = map.call(checks$, (s: any) => {
+      if (this.shouldBeCanceled()) return of(false);
+
       if (s instanceof CanActivate) {
         return andObservables(
             from([this.runCanActivateChild(s.path), this.runCanActivate(s.route)]));
@@ -694,6 +703,8 @@ export class PreActivation {
     if (this.checks.length === 0) return of (null);
     const checks$ = from(this.checks);
     const runningChecks$ = concatMap.call(checks$, (s: any) => {
+      if (this.shouldBeCanceled()) return of(null);
+
       if (s instanceof CanActivate) {
         return this.runResolve(s.route);
       } else {

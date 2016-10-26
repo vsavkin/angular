@@ -13,9 +13,17 @@ import {RouterModule} from '@angular/router';
 
 import {DbService, DraftsCmp, InboxApp, InboxCmp, ROUTER_CONFIG} from './app/inbox-app';
 
+function canDeactivate() {
+  console.log("running can deactivate");
+  let r: any;
+  const p = new Promise((res) => r = res);
+  setTimeout(() => r(true), 2000);
+  return p;
+}
+
 export function main() {
   @NgModule({
-    providers: [DbService],
+    providers: [DbService, {provide: 'canDeactivate', useValue: canDeactivate}],
     declarations: [InboxCmp, DraftsCmp, InboxApp],
     imports: [RouterModule.forRoot(ROUTER_CONFIG, {useHash: true}), BrowserModule],
     bootstrap: [InboxApp]
