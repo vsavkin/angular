@@ -6,11 +6,12 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {CommonModule, PlatformLocation, ɵPLATFORM_BROWSER_ID as PLATFORM_BROWSER_ID} from '@angular/common';
+import {CommonModule, PlatformLocation, ScrollService, ɵPLATFORM_BROWSER_ID as PLATFORM_BROWSER_ID} from '@angular/common';
 import {APP_ID, ApplicationModule, ErrorHandler, ModuleWithProviders, NgModule, Optional, PLATFORM_ID, PLATFORM_INITIALIZER, PlatformRef, RendererFactory2, RootRenderer, Sanitizer, SkipSelf, StaticProvider, Testability, createPlatformFactory, platformCore, ɵAPP_ROOT as APP_ROOT} from '@angular/core';
 
 import {BrowserDomAdapter} from './browser/browser_adapter';
 import {BrowserPlatformLocation} from './browser/location/browser_platform_location';
+import {BrowserScrollService} from './browser/location/browser_scroll_service';
 import {Meta} from './browser/meta';
 import {SERVER_TRANSITION_PROVIDERS, TRANSITION_ID} from './browser/server-transition';
 import {BrowserGetTestability} from './browser/testability';
@@ -70,22 +71,16 @@ export function _document(): any {
  */
 @NgModule({
   providers: [
-    BROWSER_SANITIZATION_PROVIDERS,
-    {provide: APP_ROOT, useValue: true},
+    BROWSER_SANITIZATION_PROVIDERS, {provide: APP_ROOT, useValue: true},
     {provide: ErrorHandler, useFactory: errorHandler, deps: []},
     {provide: EVENT_MANAGER_PLUGINS, useClass: DomEventsPlugin, multi: true},
     {provide: EVENT_MANAGER_PLUGINS, useClass: KeyEventsPlugin, multi: true},
     {provide: EVENT_MANAGER_PLUGINS, useClass: HammerGesturesPlugin, multi: true},
-    {provide: HAMMER_GESTURE_CONFIG, useClass: HammerGestureConfig},
-    DomRendererFactory2,
+    {provide: HAMMER_GESTURE_CONFIG, useClass: HammerGestureConfig}, DomRendererFactory2,
     {provide: RendererFactory2, useExisting: DomRendererFactory2},
-    {provide: SharedStylesHost, useExisting: DomSharedStylesHost},
-    DomSharedStylesHost,
-    Testability,
-    EventManager,
-    ELEMENT_PROBE_PROVIDERS,
-    Meta,
-    Title,
+    {provide: SharedStylesHost, useExisting: DomSharedStylesHost}, DomSharedStylesHost, Testability,
+    EventManager, ELEMENT_PROBE_PROVIDERS, Meta, Title,
+    {provide: ScrollService, useClass: BrowserScrollService}
   ],
   exports: [CommonModule, ApplicationModule]
 })

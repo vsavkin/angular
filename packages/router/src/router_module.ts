@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {APP_BASE_HREF, HashLocationStrategy, LOCATION_INITIALIZED, Location, LocationStrategy, PathLocationStrategy, PlatformLocation} from '@angular/common';
+import {APP_BASE_HREF, HashLocationStrategy, LOCATION_INITIALIZED, Location, LocationStrategy, PathLocationStrategy, PlatformLocation, ScrollService} from '@angular/common';
 import {ANALYZE_FOR_ENTRY_COMPONENTS, APP_BOOTSTRAP_LISTENER, APP_INITIALIZER, ApplicationRef, Compiler, ComponentRef, Inject, Injectable, InjectionToken, Injector, ModuleWithProviders, NgModule, NgModuleFactoryLoader, NgProbeToken, Optional, Provider, SkipSelf, SystemJsNgModuleLoader} from '@angular/core';
 import {ɵgetDOM as getDOM} from '@angular/platform-browser';
 import {Subject} from 'rxjs/Subject';
@@ -21,6 +21,7 @@ import {ErrorHandler, Router} from './router';
 import {ROUTES} from './router_config_loader';
 import {ChildrenOutletContexts} from './router_outlet_context';
 import {NoPreloading, PreloadAllModules, PreloadingStrategy, RouterPreloader} from './router_preloader';
+import {AnchorScrolling, RouterScroller, ScrollPositionRestoration} from './router_scroller';
 import {ActivatedRoute} from './router_state';
 import {UrlHandlingStrategy} from './url_handling_strategy';
 import {DefaultUrlSerializer, UrlSerializer} from './url_tree';
@@ -159,6 +160,11 @@ export class RouterModule {
           ]
         },
         {
+          provide: RouterScroller,
+          useFactory: createRouterScroller,
+          deps: [Router, ScrollService, ROUTER_CONFIGURATION]
+        },
+        {
           provide: PreloadingStrategy,
           useExisting: config && config.preloadingStrategy ? config.preloadingStrategy :
                                                              NoPreloading
@@ -175,6 +181,14 @@ export class RouterModule {
   static forChild(routes: Routes): ModuleWithProviders {
     return {ngModule: RouterModule, providers: [provideRoutes(routes)]};
   }
+}
+
+export function createRouterScroller(
+    router: Router, scrollService: ScrollService, config: ExtraOptions): RouterScroller {
+  if (config.scrollOffset) {
+    scrollService.setOffset(config.scrollOffset);
+  }
+  return new RouterScroller(router, scrollService, config);
 }
 
 export function provideLocationStrategy(
@@ -278,6 +292,32 @@ export interface ExtraOptions {
    * current URL. Default is 'ignore'.
    */
   onSameUrlNavigation?: 'reload'|'ignore';
+
+  /**
+   * Configures if the scroll position needs to be restored when navigating back.
+   *
+   * * 'disabled'--does nothing (default).
+   * * 'top'--set the scroll position to 0,0..
+   * * 'enabled'--set the scroll position to the stored position.
+   */
+  scrollPositionRestoration?: ScrollPositionRestoration;
+
+  /**
+   * Configures if the router should scroll to the element when the url has a fragment.
+   *
+   * * 'disabled'--does nothing (default).
+   * * 'enabled'--scrolls to the element.
+   */
+  anchorScrolling?: AnchorScrolling;
+
+  /**
+   * Configures the top offset the router will use when scrolling to an element.
+   *
+   * When given a number, the router will always use the number.
+   * When given a function, the router will invoke the function every time it restores scroll
+   * position.
+   */
+  scrollOffset?: number|(() => number);
 
   /**
    * Defines how the router merges params, data and resolved data from parent to child
@@ -394,6 +434,7 @@ export class RouterInitializer {
   bootstrapListener(bootstrappedComponentRef: ComponentRef<any>): void {
     const opts = this.injector.get(ROUTER_CONFIGURATION);
     const preloader = this.injector.get(RouterPreloader);
+    const routerScroller = this.injector.get(RouterScroller);
     const router = this.injector.get(Router);
     const ref = this.injector.get<ApplicationRef>(ApplicationRef);
 
@@ -408,6 +449,7 @@ export class RouterInitializer {
     }
 
     preloader.setUpPreloading();
+    routerScroller.init();
     router.resetRootComponentType(ref.componentTypes[0]);
     this.resultOfPreactivationDone.next(null !);
     this.resultOfPreactivationDone.complete();

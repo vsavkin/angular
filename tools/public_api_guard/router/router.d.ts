@@ -123,12 +123,15 @@ export declare type Event = RouterEvent | RouteConfigLoadStart | RouteConfigLoad
 
 /** @stable */
 export interface ExtraOptions {
+    anchorScrolling?: AnchorScrolling;
     enableTracing?: boolean;
     errorHandler?: ErrorHandler;
     initialNavigation?: InitialNavigation;
     onSameUrlNavigation?: 'reload' | 'ignore';
     paramsInheritanceStrategy?: 'emptyOnly' | 'always';
     preloadingStrategy?: any;
+    scrollOffset?: number | (() => number);
+    scrollPositionRestoration?: ScrollPositionRestoration;
     useHash?: boolean;
 }
 

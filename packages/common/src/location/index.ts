@@ -11,3 +11,4 @@ export * from './location_strategy';
 export * from './hash_location_strategy';
 export * from './path_location_strategy';
 export * from './location';
+export * from './scroll_service';
