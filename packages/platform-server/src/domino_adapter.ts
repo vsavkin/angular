@@ -199,6 +199,8 @@ export class DominoAdapter extends BrowserDomAdapter {
 
   getHistory(): History { throw _notImplemented('getHistory'); }
   getLocation(): Location { throw _notImplemented('getLocation'); }
+  getWindow(): Window { throw _notImplemented('getWindow'); }
+
   getUserAgent(): string { return 'Fake user agent'; }
 
   supportsWebAnimation(): boolean { return false; }

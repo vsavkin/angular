@@ -146,6 +146,7 @@ export abstract class DomAdapter {
   abstract getGlobalEventTarget(doc: Document, target: string): any;
   abstract getHistory(): History;
   abstract getLocation(): Location;
+  abstract getWindow(): Window;
   abstract getBaseHref(doc: Document): string|null;
   abstract resetBaseElement(): void;
   abstract getUserAgent(): string;

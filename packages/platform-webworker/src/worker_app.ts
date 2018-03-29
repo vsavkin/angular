@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import {CommonModule, ɵPLATFORM_WORKER_APP_ID as PLATFORM_WORKER_APP_ID} from '@angular/common';
+import {CommonModule, ScrollService, ɵPLATFORM_WORKER_APP_ID as PLATFORM_WORKER_APP_ID} from '@angular/common';
 import {APP_INITIALIZER, ApplicationModule, ErrorHandler, NgModule, NgZone, PLATFORM_ID, PlatformRef, RendererFactory2, RootRenderer, StaticProvider, createPlatformFactory, platformCore} from '@angular/core';
 import {DOCUMENT, ɵBROWSER_SANITIZATION_PROVIDERS as BROWSER_SANITIZATION_PROVIDERS} from '@angular/platform-browser';
 
@@ -17,6 +17,7 @@ import {PostMessageBus, PostMessageBusSink, PostMessageBusSource} from './web_wo
 import {RenderStore} from './web_workers/shared/render_store';
 import {Serializer} from './web_workers/shared/serializer';
 import {ServiceMessageBrokerFactory} from './web_workers/shared/service_message_broker';
+import {NullScrollService} from './web_workers/worker/null_scroll_service';
 import {WebWorkerRendererFactory2} from './web_workers/worker/renderer';
 import {WorkerDomAdapter} from './web_workers/worker/worker_adapter';
 
@@ -59,18 +60,14 @@ export function setupWebWorker(): void {
  */
 @NgModule({
   providers: [
-    BROWSER_SANITIZATION_PROVIDERS,
-    Serializer,
-    {provide: DOCUMENT, useValue: null},
-    ClientMessageBrokerFactory,
-    ServiceMessageBrokerFactory,
-    WebWorkerRendererFactory2,
+    BROWSER_SANITIZATION_PROVIDERS, Serializer, {provide: DOCUMENT, useValue: null},
+    ClientMessageBrokerFactory, ServiceMessageBrokerFactory, WebWorkerRendererFactory2,
     {provide: RendererFactory2, useExisting: WebWorkerRendererFactory2},
-    {provide: ON_WEB_WORKER, useValue: true},
-    RenderStore,
+    {provide: ON_WEB_WORKER, useValue: true}, RenderStore,
     {provide: ErrorHandler, useFactory: errorHandler, deps: []},
     {provide: MessageBus, useFactory: createMessageBus, deps: [NgZone]},
     {provide: APP_INITIALIZER, useValue: setupWebWorker, multi: true},
+    {provide: ScrollService, useClass: NullScrollService}
   ],
   exports: [
     CommonModule,

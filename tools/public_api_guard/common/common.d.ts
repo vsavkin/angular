@@ -439,6 +439,15 @@ export interface PopStateEvent {
 /** @experimental */
 export declare function registerLocaleData(data: any, localeId?: string | any, extraData?: any): void;
 
+/** @experimental */
+export declare abstract class ScrollService {
+    abstract getScrollPosition(): [number, number];
+    abstract scrollToAnchor(anchor: string): void;
+    abstract scrollToPosition(position: [number, number]): void;
+    abstract setHistoryScrollRestoration(scrollRestoration: 'auto' | 'manual'): void;
+    abstract setOffset(offset: [number, number] | (() => [number, number])): void;
+}
+
 /** @stable */
 export declare class SlicePipe implements PipeTransform {
     transform(value: any, start: number, end?: number): any;

@@ -361,6 +361,7 @@ export class BrowserDomAdapter extends GenericBrowserDomAdapter {
   }
   getHistory(): History { return window.history; }
   getLocation(): Location { return window.location; }
+  getWindow(): Window { return window; }
   getBaseHref(doc: Document): string|null {
     const href = getBaseElementHref();
     return href == null ? null : relativePath(href);

@@ -150,6 +150,7 @@ export class WorkerDomAdapter extends DomAdapter {
   supportsNativeShadowDOM(): boolean { throw 'not implemented'; }
   getGlobalEventTarget(doc: Document, target: string): any { throw 'not implemented'; }
   getHistory(): History { throw 'not implemented'; }
+  getWindow(): Window { throw 'not implemented'; }
   getLocation(): Location { throw 'not implemented'; }
   getBaseHref(doc: Document): string { throw 'not implemented'; }
   resetBaseElement(): void { throw 'not implemented'; }
