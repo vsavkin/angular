@@ -2535,7 +2535,7 @@ describe('Integration', () => {
            })));
       });
 
-      it('should find the guard provided in lazy loaded module',
+      fit('should find the guard provided in lazy loaded module',
          fakeAsync(inject(
              [Router, Location, NgModuleFactoryLoader],
              (router: Router, location: Location, loader: SpyNgModuleFactoryLoader) => {

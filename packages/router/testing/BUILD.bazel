@@ -12,6 +12,8 @@ ng_module(
         "//packages/common",
         "//packages/common/testing",
         "//packages/core",
+        "//packages/core/testing",
+        "//packages/compiler",
         "//packages/router",
     ],
 )

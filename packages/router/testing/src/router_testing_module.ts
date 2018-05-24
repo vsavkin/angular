@@ -7,10 +7,11 @@
  */
 
 import {Location, LocationStrategy} from '@angular/common';
+import {CompileMetadataResolver} from '@angular/compiler';
 import {MockLocationStrategy, SpyLocation} from '@angular/common/testing';
-import {Compiler, Injectable, Injector, ModuleWithProviders, NgModule, NgModuleFactory, NgModuleFactoryLoader, Optional} from '@angular/core';
+import {Compiler, Injectable, Injector, ModuleWithProviders, getModuleFactory, NgModule, NgModuleFactory, NgModuleFactoryLoader, Optional} from '@angular/core';
 import {ChildrenOutletContexts, ExtraOptions, NoPreloading, PreloadingStrategy, ROUTER_CONFIGURATION, ROUTES, Route, Router, RouterModule, Routes, UrlHandlingStrategy, UrlSerializer, provideRoutes, ɵROUTER_PROVIDERS as ROUTER_PROVIDERS, ɵflatten as flatten} from '@angular/router';
-
+import {TestBed} from '@angular/core/testing';
 
 
 /**
@@ -55,7 +56,12 @@ export class SpyNgModuleFactoryLoader implements NgModuleFactoryLoader {
   set stubbedModules(modules: {[path: string]: any}) {
     const res: {[path: string]: any} = {};
     for (const t of Object.keys(modules)) {
-      res[t] = this.compiler.compileModuleAsync(modules[t]);
+      const moduleType = modules[t];
+      const metadata = this.tb.get(CompileMetadataResolver).getNgModuleMetadata(moduleType);
+      const id = metadata && metadata.id ? metadata.id : 'invalid';
+      res[t] = Promise.resolve().then(() => getModuleFactory(id)).catch(() =>
+        this.tb.get(Compiler).compileModuleAsync(moduleType)
+      );
     }
     this._stubbedModules = res;
   }
@@ -65,7 +71,7 @@ export class SpyNgModuleFactoryLoader implements NgModuleFactoryLoader {
    */
   get stubbedModules(): {[path: string]: any} { return this._stubbedModules; }
 
-  constructor(private compiler: Compiler) {}
+  constructor(private tb: TestBed) {}
 
   load(path: string): Promise<NgModuleFactory<any>> {
     if (this._stubbedModules[path]) {
